@@ -264,6 +264,15 @@ tr:hover td{background:var(--bg);}
 .date-wrap .cal-btn{position:absolute;right:0;top:0;bottom:0;width:34px;background:none;border:none;cursor:pointer;color:var(--tm);font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:0 7px 7px 0;}
 .date-wrap .cal-btn:hover{color:var(--accent);}
 .date-wrap input.date-picker-hidden{position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;}
+
+/* ── Edit Modal ── */
+.edit-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:14px;}
+.edit-modal-bx{background:var(--card);border-radius:var(--r);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.3);}
+.edit-modal-hd{padding:12px 16px;background:linear-gradient(to right,var(--sb),var(--sbm));color:white;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;}
+.edit-modal-hd h3{font-size:0.92rem;font-weight:600;}
+.edit-modal-cl{background:none;border:none;color:white;font-size:1.1rem;cursor:pointer;}
+.edit-modal-bd{padding:15px;}
+.edit-modal-ac{padding:0 15px 15px;display:flex;gap:7px;}
 </style>
 </head>
 <body>
@@ -361,7 +370,10 @@ tr:hover td{background:var(--bg);}
 
 <!-- DASHBOARD -->
 <div id="page-dashboard" class="page active">
-  <div class="page-header"><h2>📊 <span class="bn">ড্যাশবোর্ড</span><span class="en">Dashboard</span></h2></div>
+  <div style="background:linear-gradient(135deg,var(--sb),var(--sbm));border-radius:var(--r);padding:18px 22px;margin-bottom:16px;text-align:center;box-shadow:var(--sh);">
+    <div style="font-size:1.7rem;font-weight:800;color:#fff;letter-spacing:1px;font-family:var(--font-head)">🌾 Masud & Mosiar Project</div>
+    <div style="font-size:0.82rem;color:var(--accentT);margin-top:5px;letter-spacing:0.5px"><span class="bn">কৃষি হিসাব — জমি, ফসল ও আয়-ব্যয়ের হিসাব</span><span class="en">Farm Ledger — Land, Crop & Financial Records</span></div>
+  </div>
   <div class="quick-bar">
     <button class="quick-btn qb-e" onclick="openQModal('expense')">⚡ <span class="bn">আজকের খরচ</span><span class="en">Today's Expense</span></button>
     <button class="quick-btn qb-i" onclick="openQModal('income')">⚡ <span class="bn">আজকের আয়</span><span class="en">Today's Income</span></button>
@@ -718,6 +730,15 @@ tr:hover td{background:var(--bg);}
 </main>
 </div><!-- /appWrap -->
 
+
+<!-- Edit Modal (shared) -->
+<div id="editModal" class="edit-modal-ov" style="display:none" onclick="if(event.target===this)closeEditModal()">
+  <div class="edit-modal-bx">
+    <div class="edit-modal-hd"><h3 id="editModal-title">✏️ Edit</h3><button class="edit-modal-cl" onclick="closeEditModal()">✕</button></div>
+    <div class="edit-modal-bd" id="editModal-body"></div>
+    <div class="edit-modal-ac" id="editModal-ac"></div>
+  </div>
+</div>
 <!-- Quick Modal -->
 <div id="qModal" class="mo-ov" style="display:none" onclick="if(event.target===this)closeQM()">
   <div class="mo-bx">
@@ -1179,7 +1200,7 @@ function renderLabors(){
   DB.labors.forEach(lb=>{if(!sm[lb.name])sm[lb.name]={days:0,total:0,paid:0};sm[lb.name].days+=lb.days;sm[lb.name].total+=lb.total;sm[lb.name].paid+=lb.paid_amount||0;});
   document.getElementById('laborSum').innerHTML=Object.keys(sm).length?Object.entries(sm).map(([n,s])=>`<tr><td><strong>${n}</strong></td><td>${s.days}</td><td>${fmt(s.total)}</td><td class="pp">${fmt(s.paid)}</td><td class="${s.total-s.paid>0?'pn':'pp'}">${fmt(s.total-s.paid)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No data</td></tr>';
   const stM={paid:'<span class="badge bg">Paid</span>',unpaid:'<span class="badge br">Due</span>',partial:'<span class="badge by">Partial</span>'};
-  document.getElementById('laborTB').innerHTML=DB.labors.length?DB.labors.slice().reverse().map(lb=>`<tr><td>${fmtD(lb.date)}</td><td><strong>${lb.name}</strong></td><td>${getLN(lb.land)}</td><td>${lb.type}</td><td>${lb.days}</td><td>${fmt(lb.total)}</td><td>${stM[lb.paid_status]||''}</td><td><button class="btn btn-d btn-sm" onclick="delLabor('${lb.id}')">🗑️</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty"><div class="ei">👷</div>No entries</td></tr>';
+  document.getElementById('laborTB').innerHTML=DB.labors.length?DB.labors.slice().reverse().map(lb=>`<tr><td>${fmtD(lb.date)}</td><td><strong>${lb.name}</strong></td><td>${getLN(lb.land)}</td><td>${lb.type}</td><td>${lb.days}</td><td>${fmt(lb.total)}</td><td>${stM[lb.paid_status]||''}</td><td style="white-space:nowrap"><button class="btn btn-e btn-sm" onclick="editLabor('${lb.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delLabor('${lb.id}')">🗑️</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty"><div class="ei">👷</div>No entries</td></tr>';
 }
 
 // ══════════ STOCK ══════════
@@ -1208,7 +1229,7 @@ function renderStocks(){
       <div style="display:inline-block;width:60px;height:7px;background:var(--border);border-radius:4px;margin-left:5px;vertical-align:middle;overflow:hidden"><div style="height:100%;width:${pct}%;background:${low?'var(--red)':'var(--accent2)'};border-radius:4px"></div></div>
     </td>
     <td>${fmt(s.price)}</td><td>${fmt(rem*s.price)}</td>
-    <td><button class="btn btn-d btn-sm" onclick="delStock('${s.id}')">🗑️</button></td></tr>`;
+    <td style="white-space:nowrap"><button class="btn btn-e btn-sm" onclick="editStock('${s.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delStock('${s.id}')">🗑️</button></td></tr>`;
   }).join(''):'<tr><td colspan="8" class="empty"><div class="ei">📦</div>No stock</td></tr>';
 }
 
@@ -1251,7 +1272,7 @@ function renderExpenses(){
     <td>${fmtD(e.date)}</td><td>${getLN(e.land)}</td><td>${getCN(e.crop)}</td>
     <td><span class="badge by">${catL[e.cat]||e.cat}</span></td>
     <td>${e.desc||'—'}</td><td><strong>${fmt(e.amount)}</strong></td>
-    <td><button class="btn btn-d btn-sm" onclick="delExpense('${e.id}')">🗑️</button></td>
+    <td style="white-space:nowrap"><button class="btn btn-e btn-sm" onclick="editExpense('${e.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delExpense('${e.id}')">🗑️</button></td>
   </tr>`).join(''):'<tr><td colspan="7" class="empty"><div class="ei">💸</div>No expenses</td></tr>';
 }
 
@@ -1293,7 +1314,7 @@ function renderIncomes(){
     <td>${fmtD(i.date)}</td><td>${getLN(i.land)}</td><td>${getCN(i.crop)}</td>
     <td>${i.product||'—'}</td><td>${i.qty||'—'}</td><td>${i.price?fmt(i.price):'—'}</td>
     <td><strong style="color:var(--accent)">${fmt(i.total)}</strong></td>
-    <td><button class="btn btn-d btn-sm" onclick="delIncome('${i.id}')">🗑️</button></td>
+    <td style="white-space:nowrap"><button class="btn btn-e btn-sm" onclick="editIncome('${i.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delIncome('${i.id}')">🗑️</button></td>
   </tr>`).join(''):'<tr><td colspan="8" class="empty"><div class="ei">💰</div>No income</td></tr>';
 }
 
@@ -1583,7 +1604,8 @@ function renderNotes(){
     <div style="background:${noteColors[n.type]||noteColors.general};border:1.5px solid ${noteBorders[n.type]||noteBorders.general};border-radius:10px;padding:13px;position:relative;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
         <strong style="font-size:0.88rem;color:var(--td);flex:1">${n.title||'—'}</strong>
-        <button onclick="delNote('${n.id}')" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1rem;margin-left:6px;padding:0;">✕</button>
+        <button onclick="editNote('${n.id}')" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:0.85rem;margin-left:4px;padding:2px 5px;border-radius:4px;border:1px solid var(--accent)">✏️</button>
+      <button onclick="delNote('${n.id}')" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1rem;margin-left:4px;padding:0;">✕</button>
       </div>
       <p style="font-size:0.81rem;color:var(--tm);margin-bottom:8px;line-height:1.5;white-space:pre-wrap">${n.body||''}</p>
       <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -1650,6 +1672,200 @@ function renderCapital(){
     <td>${c.desc||'—'} <small style="color:var(--tm)">${c.note||''}</small></td>
     <td><button class="btn btn-d btn-sm" onclick="delCapital('${c.id}')">🗑️</button></td>
   </tr>`).join(''):'<tr><td colspan="6" class="empty"><div class="ei">💰</div>No entries</td></tr>';
+}
+
+
+// ══════════ EDIT MODAL ══════════
+function openEditModal(title, bodyHTML, acHTML){
+  document.getElementById('editModal-title').textContent = title;
+  document.getElementById('editModal-body').innerHTML = bodyHTML;
+  document.getElementById('editModal-ac').innerHTML = acHTML;
+  document.getElementById('editModal').style.display = 'flex';
+  setTimeout(initDateInputs, 50);
+}
+function closeEditModal(){
+  document.getElementById('editModal').style.display = 'none';
+}
+
+// ── Edit Expense ──
+function editExpense(id){
+  const e = DB.expenses.find(x=>x.id===id); if(!e) return;
+  const lo = DB.lands.map(l=>`<option value="${l.id}" ${l.id===e.land?'selected':''}>${l.name}</option>`).join('');
+  const co = DB.crops.map(c=>`<option value="${c.id}" ${c.id===e.crop?'selected':''}>${c.name}</option>`).join('');
+  const cats = ['Seed','Fertilizer','Pesticide','Labor','Irrigation','Tools/Equipment','Trellis/Scaffold','Land Rent','Other'];
+  const catO = cats.map(c=>`<option value="${c}" ${c===e.cat?'selected':''}>${catL[c]||c}</option>`).join('');
+  openEditModal('✏️ খরচ এডিট / Edit Expense', `
+    <div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>তারিখ/Date</label>
+        <div class="date-wrap"><input id="ee_date-txt" class="date-text" placeholder="dd/mm/yyyy" value="${e.date?e.date.split('-').reverse().join('/'):''}"><button type="button" class="cal-btn">📅</button><input id="ee_date" type="date" value="${e.date||''}" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div>
+      </div>
+      <div class="fgrp"><label>জমি/Land</label><select id="ee_land">${lo}</select></div>
+      <div class="fgrp"><label>ফসল/Crop</label><select id="ee_crop">${co}</select></div>
+      <div class="fgrp"><label>ধরন/Category</label><select id="ee_cat">${catO}</select></div>
+      <div class="fgrp"><label>পরিমাণ/Amount ৳</label><input id="ee_amount" type="number" value="${e.amount}"></div>
+      <div class="fgrp"><label>বিবরণ/Desc</label><input id="ee_desc" value="${e.desc||''}"></div>
+    </div>`,
+    `<button class="btn btn-p" onclick="saveExpenseEdit('${id}')">✅ <span class="bn">সেভ করুন</span><span class="en">Save</span></button>
+     <button class="btn btn-d" onclick="closeEditModal()"><span class="bn">বাতিল</span><span class="en">Cancel</span></button>`
+  );
+}
+function saveExpenseEdit(id){
+  const e = DB.expenses.find(x=>x.id===id); if(!e) return;
+  const dateEl = document.getElementById('ee_date');
+  const dateTxt = document.getElementById('ee_date-txt');
+  let dateVal = dateEl?.value || '';
+  if(dateTxt?.value){const iso=toISO(dateTxt.value);if(/^\d{4}-\d{2}-\d{2}$/.test(iso))dateVal=iso;}
+  e.date = dateVal || e.date;
+  e.land = document.getElementById('ee_land').value;
+  e.crop = document.getElementById('ee_crop').value;
+  e.cat  = document.getElementById('ee_cat').value;
+  e.amount = parseFloat(document.getElementById('ee_amount').value)||e.amount;
+  e.desc = document.getElementById('ee_desc').value.trim();
+  save(); renderExpenses(); closeEditModal(); showToast('খরচ আপডেট ✅');
+}
+
+// ── Edit Income ──
+function editIncome(id){
+  const i = DB.incomes.find(x=>x.id===id); if(!i) return;
+  const lo = DB.lands.map(l=>`<option value="${l.id}" ${l.id===i.land?'selected':''}>${l.name}</option>`).join('');
+  const co = DB.crops.map(c=>`<option value="${c.id}" ${c.id===i.crop?'selected':''}>${c.name}</option>`).join('');
+  openEditModal('✏️ আয় এডিট / Edit Income', `
+    <div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>তারিখ/Date</label>
+        <div class="date-wrap"><input id="ei_date-txt" class="date-text" placeholder="dd/mm/yyyy" value="${i.date?i.date.split('-').reverse().join('/'):''}"><button type="button" class="cal-btn">📅</button><input id="ei_date" type="date" value="${i.date||''}" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div>
+      </div>
+      <div class="fgrp"><label>জমি/Land</label><select id="ei_land">${lo}</select></div>
+      <div class="fgrp"><label>ফসল/Crop</label><select id="ei_crop">${co}</select></div>
+      <div class="fgrp"><label>পণ্য/Product</label><input id="ei_product" value="${i.product||''}"></div>
+      <div class="fgrp"><label>পরিমাণ/Qty</label><input id="ei_qty" value="${i.qty||''}"></div>
+      <div class="fgrp"><label>একক মূল্য/Unit Price ৳</label><input id="ei_price" type="number" value="${i.price||0}"></div>
+      <div class="fgrp"><label>মোট/Total ৳</label><input id="ei_total" type="number" value="${i.total}"></div>
+    </div>`,
+    `<button class="btn btn-p" onclick="saveIncomeEdit('${id}')">✅ <span class="bn">সেভ করুন</span><span class="en">Save</span></button>
+     <button class="btn btn-d" onclick="closeEditModal()"><span class="bn">বাতিল</span><span class="en">Cancel</span></button>`
+  );
+}
+function saveIncomeEdit(id){
+  const i = DB.incomes.find(x=>x.id===id); if(!i) return;
+  const dateEl = document.getElementById('ei_date');
+  const dateTxt = document.getElementById('ei_date-txt');
+  let dateVal = dateEl?.value || '';
+  if(dateTxt?.value){const iso=toISO(dateTxt.value);if(/^\d{4}-\d{2}-\d{2}$/.test(iso))dateVal=iso;}
+  i.date = dateVal || i.date;
+  i.land = document.getElementById('ei_land').value;
+  i.crop = document.getElementById('ei_crop').value;
+  i.product = document.getElementById('ei_product').value.trim();
+  i.qty = document.getElementById('ei_qty').value.trim();
+  i.price = parseFloat(document.getElementById('ei_price').value)||0;
+  i.total = parseFloat(document.getElementById('ei_total').value)||i.total;
+  save(); renderIncomes(); closeEditModal(); showToast('আয় আপডেট ✅');
+}
+
+// ── Edit Stock ──
+function editStock(id){
+  const s = DB.stocks.find(x=>x.id===id); if(!s) return;
+  const types = ['বীজ','সার','কীটনাশক','যন্ত্রপাতি','অন্যান্য'];
+  const typeO = types.map(t=>`<option value="${t}" ${t===s.type?'selected':''}>${t}</option>`).join('');
+  openEditModal('✏️ মজুদ এডিট / Edit Stock', `
+    <div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>পণ্যের নাম/Item</label><input id="es_name" value="${s.name}"></div>
+      <div class="fgrp"><label>ধরন/Type</label><select id="es_type">${typeO}</select></div>
+      <div class="fgrp"><label>কেনা/Bought</label><input id="es_bought" type="number" value="${s.bought}"></div>
+      <div class="fgrp"><label>ব্যবহার/Used</label><input id="es_used" type="number" value="${s.used}"></div>
+      <div class="fgrp"><label>একক/Unit</label><input id="es_unit" value="${s.unit||''}"></div>
+      <div class="fgrp"><label>একক মূল্য/Price ৳</label><input id="es_price" type="number" value="${s.price||0}"></div>
+      <div class="fgrp"><label>সর্বনিম্ন/Min Alert</label><input id="es_min" type="number" value="${s.min||0}"></div>
+    </div>`,
+    `<button class="btn btn-p" onclick="saveStockEdit('${id}')">✅ <span class="bn">সেভ করুন</span><span class="en">Save</span></button>
+     <button class="btn btn-d" onclick="closeEditModal()"><span class="bn">বাতিল</span><span class="en">Cancel</span></button>`
+  );
+}
+function saveStockEdit(id){
+  const s = DB.stocks.find(x=>x.id===id); if(!s) return;
+  s.name   = document.getElementById('es_name').value.trim() || s.name;
+  s.type   = document.getElementById('es_type').value;
+  s.bought = parseFloat(document.getElementById('es_bought').value)||0;
+  s.used   = parseFloat(document.getElementById('es_used').value)||0;
+  s.unit   = document.getElementById('es_unit').value;
+  s.price  = parseFloat(document.getElementById('es_price').value)||0;
+  s.min    = parseFloat(document.getElementById('es_min').value)||0;
+  save(); renderStocks(); closeEditModal(); showToast('মজুদ আপডেট ✅');
+}
+
+// ── Edit Labor ──
+function editLabor(id){
+  const lb = DB.labors.find(x=>x.id===id); if(!lb) return;
+  const lo = DB.lands.map(l=>`<option value="${l.id}" ${l.id===lb.land?'selected':''}>${l.name}</option>`).join('');
+  const co = DB.crops.map(c=>`<option value="${c.id}" ${c.id===lb.crop?'selected':''}>${c.name}</option>`).join('');
+  const wTypes = ['জমি চাষ','বীজ বপন','সার দেওয়া','সেচ দেওয়া','আগাছা পরিষ্কার','ফসল কাটা','বহন','অন্যান্য'];
+  const wtO = wTypes.map(t=>`<option value="${t}" ${t===lb.type?'selected':''}>${t}</option>`).join('');
+  const paidO = [['paid','Paid'],['unpaid','বাকি/Unpaid'],['partial','আংশিক/Partial']].map(([v,l])=>`<option value="${v}" ${v===lb.paid_status?'selected':''}>${l}</option>`).join('');
+  openEditModal('✏️ হাজিরা এডিট / Edit Labor', `
+    <div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>শ্রমিকের নাম/Name</label><input id="el_name" value="${lb.name}"></div>
+      <div class="fgrp"><label>তারিখ/Date</label>
+        <div class="date-wrap"><input id="el_date-txt" class="date-text" placeholder="dd/mm/yyyy" value="${lb.date?lb.date.split('-').reverse().join('/'):''}"><button type="button" class="cal-btn">📅</button><input id="el_date" type="date" value="${lb.date||''}" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div>
+      </div>
+      <div class="fgrp"><label>জমি/Land</label><select id="el_land">${lo}</select></div>
+      <div class="fgrp"><label>ফসল/Crop</label><select id="el_crop">${co}</select></div>
+      <div class="fgrp"><label>কাজের ধরন/Work</label><select id="el_type">${wtO}</select></div>
+      <div class="fgrp"><label>দিন/Days</label><input id="el_days" type="number" step="0.5" value="${lb.days}"></div>
+      <div class="fgrp"><label>দৈনিক মজুরি/Rate ৳</label><input id="el_rate" type="number" value="${lb.rate}"></div>
+      <div class="fgrp"><label>পরিশোধ/Payment</label><select id="el_paid">${paidO}</select></div>
+    </div>`,
+    `<button class="btn btn-p" onclick="saveLaborEdit('${id}')">✅ <span class="bn">সেভ করুন</span><span class="en">Save</span></button>
+     <button class="btn btn-d" onclick="closeEditModal()"><span class="bn">বাতিল</span><span class="en">Cancel</span></button>`
+  );
+}
+function saveLaborEdit(id){
+  const lb = DB.labors.find(x=>x.id===id); if(!lb) return;
+  const dateEl = document.getElementById('el_date');
+  const dateTxt = document.getElementById('el_date-txt');
+  let dateVal = dateEl?.value || '';
+  if(dateTxt?.value){const iso=toISO(dateTxt.value);if(/^\d{4}-\d{2}-\d{2}$/.test(iso))dateVal=iso;}
+  const days = parseFloat(document.getElementById('el_days').value)||lb.days;
+  const rate = parseFloat(document.getElementById('el_rate').value)||lb.rate;
+  const ps   = document.getElementById('el_paid').value;
+  lb.name    = document.getElementById('el_name').value.trim() || lb.name;
+  lb.date    = dateVal || lb.date;
+  lb.land    = document.getElementById('el_land').value;
+  lb.crop    = document.getElementById('el_crop').value;
+  lb.type    = document.getElementById('el_type').value;
+  lb.days    = days; lb.rate = rate; lb.total = days * rate;
+  lb.paid_status  = ps;
+  lb.paid_amount  = ps==='paid' ? days*rate : (ps==='partial' ? lb.paid_amount : 0);
+  save(); renderLabors(); closeEditModal(); showToast('হাজিরা আপডেট ✅');
+}
+
+// ── Edit Note ──
+function editNote(id){
+  const n = DB.notes.find(x=>x.id===id); if(!n) return;
+  const types = [['general','সাধারণ'],['reminder','রিমাইন্ডার'],['plan','পরিকল্পনা'],['other','অন্যান্য']];
+  const typeO = types.map(([v,l])=>`<option value="${v}" ${v===n.type?'selected':''}>${l}</option>`).join('');
+  openEditModal('✏️ নোট এডিট / Edit Note', `
+    <div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>শিরোনাম/Title</label><input id="en_title" value="${(n.title||'').replace(/"/g,'&quot;')}"></div>
+      <div class="fgrp"><label>তারিখ/Date</label>
+        <div class="date-wrap"><input id="en_date-txt" class="date-text" placeholder="dd/mm/yyyy" value="${n.date?n.date.split('-').reverse().join('/'):''}"><button type="button" class="cal-btn">📅</button><input id="en_date" type="date" value="${n.date||''}" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div>
+      </div>
+      <div class="fgrp"><label>ধরন/Type</label><select id="en_type">${typeO}</select></div>
+      <div class="fgrp full"><label>বিবরণ/Details</label><textarea id="en_body" rows="4" style="width:100%;padding:7px 10px;border:1.5px solid var(--input-border);border-radius:7px;font-family:var(--font-main);font-size:0.83rem;color:var(--td);background:var(--input-bg);outline:none;">${n.body||''}</textarea></div>
+    </div>`,
+    `<button class="btn btn-p" onclick="saveNoteEdit('${id}')">✅ <span class="bn">সেভ করুন</span><span class="en">Save</span></button>
+     <button class="btn btn-d" onclick="closeEditModal()"><span class="bn">বাতিল</span><span class="en">Cancel</span></button>`
+  );
+}
+function saveNoteEdit(id){
+  const n = DB.notes.find(x=>x.id===id); if(!n) return;
+  const dateEl = document.getElementById('en_date');
+  const dateTxt = document.getElementById('en_date-txt');
+  let dateVal = dateEl?.value || '';
+  if(dateTxt?.value){const iso=toISO(dateTxt.value);if(/^\d{4}-\d{2}-\d{2}$/.test(iso))dateVal=iso;}
+  n.title = document.getElementById('en_title').value.trim();
+  n.date  = dateVal || n.date;
+  n.type  = document.getElementById('en_type').value;
+  n.body  = document.getElementById('en_body').value.trim();
+  save(); renderNotes(); closeEditModal(); showToast('নোট আপডেট ✅');
 }
 
 // ══════════ PWA ══════════
