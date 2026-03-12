@@ -255,6 +255,15 @@ tr:hover td{background:var(--bg);}
   .pc-grid{grid-template-columns:1fr;}
   .stat-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ── Smart Date Input ── */
+.date-wrap{position:relative;display:flex;gap:0;}
+.date-wrap input.date-text{flex:1;padding:7px 36px 7px 10px;border:1.5px solid var(--input-border);border-radius:7px;font-family:var(--font-main);font-size:0.83rem;color:var(--td);background:var(--input-bg);outline:none;transition:border 0.2s;}
+.date-wrap input.date-text:focus{border-color:var(--accent2);}
+.date-wrap input.date-text.modal-date{width:100%;padding:8px 36px 8px 11px;font-size:0.9rem;border-radius:7px;}
+.date-wrap .cal-btn{position:absolute;right:0;top:0;bottom:0;width:34px;background:none;border:none;cursor:pointer;color:var(--tm);font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:0 7px 7px 0;}
+.date-wrap .cal-btn:hover{color:var(--accent);}
+.date-wrap input.date-picker-hidden{position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -422,8 +431,8 @@ tr:hover td{background:var(--bg);}
       <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="pl_land"></select></div>
       <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="pl_crop"></select></div>
       <div class="fgrp"><label><span class="bn">বছর</span><span class="en">Year</span></label><input id="pl_year" type="number" placeholder="2025"></div>
-      <div class="fgrp"><label><span class="bn">শুরুর তারিখ</span><span class="en">Start Date</span></label><input id="pl_start" type="date"></div>
-      <div class="fgrp"><label><span class="bn">ফসল কাটার তারিখ</span><span class="en">Harvest Date</span></label><input id="pl_harvest" type="date"></div>
+      <div class="fgrp"><label><span class="bn">শুরুর তারিখ</span><span class="en">Start Date</span></label><div class="date-wrap"><input id="pl_start-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="pl_start" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
+      <div class="fgrp"><label><span class="bn">ফসল কাটার তারিখ</span><span class="en">Harvest Date</span></label><div class="date-wrap"><input id="pl_harvest-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="pl_harvest" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
       <div class="fgrp full"><label><span class="bn">নোট</span><span class="en">Note</span></label><textarea id="pl_note" rows="2" placeholder="..."></textarea></div>
     </div>
     <div class="fa"><button class="btn btn-p" onclick="addPlan()"><span class="bn">পরিকল্পনা যোগ করুন</span><span class="en">Add Plan</span></button></div>
@@ -438,7 +447,7 @@ tr:hover td{background:var(--bg);}
   <div class="card"><div class="card-hd"><h3>➕ <span class="bn">হাজিরা এন্ট্রি</span><span class="en">Add Attendance</span></h3></div>
     <div class="fg">
       <div class="fgrp"><label><span class="bn">শ্রমিকের নাম</span><span class="en">Worker Name</span></label><input id="lb_name" placeholder="..."></div>
-      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="lb_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="lb_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="lb_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
       <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="lb_land"></select></div>
       <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="lb_crop"></select></div>
       <div class="fgrp"><label><span class="bn">কাজের ধরন</span><span class="en">Work Type</span></label><select id="lb_type"><option>জমি চাষ</option><option>বীজ বপন</option><option>সার দেওয়া</option><option>সেচ দেওয়া</option><option>আগাছা পরিষ্কার</option><option>ফসল কাটা</option><option>বহন</option><option>অন্যান্য</option></select></div>
@@ -478,7 +487,7 @@ tr:hover td{background:var(--bg);}
   <div class="page-header"><h2>💸 <span class="bn">খরচ যোগ করুন</span><span class="en">Add Expense</span></h2></div>
   <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন খরচ</span><span class="en">New Expense</span></h3></div>
     <div class="fg">
-      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="e_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="e_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="e_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
       <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="e_land"></select></div>
       <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="e_crop"></select></div>
       <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Category</span></label><select id="e_cat"><option value="Seed">Seed/বীজ</option><option value="Fertilizer">Fertilizer/সার</option><option value="Pesticide">Pesticide/কীটনাশক</option><option value="Labor">Labor/শ্রম</option><option value="Irrigation">Irrigation/সেচ</option><option value="Tools/Equipment">Tools</option><option value="Trellis/Scaffold">Trellis/মাচা</option><option value="Land Rent">Land Rent/জমির খরচ</option><option value="Other">Other/অন্যান্য</option></select></div>
@@ -504,7 +513,7 @@ tr:hover td{background:var(--bg);}
   <div class="page-header"><h2>💰 <span class="bn">আয় যোগ করুন</span><span class="en">Add Income</span></h2></div>
   <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন আয়</span><span class="en">New Income</span></h3></div>
     <div class="fg">
-      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="i_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="i_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="i_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
       <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="i_land"></select></div>
       <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="i_crop"></select></div>
       <div class="fgrp"><label><span class="bn">পণ্য</span><span class="en">Product</span></label><input id="i_product" placeholder="..."></div>
@@ -533,7 +542,7 @@ tr:hover td{background:var(--bg);}
     <div class="fg">
       <div class="fgrp"><label><span class="bn">নাম</span><span class="en">Name</span></label><input id="d_name" placeholder="..."></div>
       <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label><select id="d_type"><option value="worker"><span class="bn">শ্রমিক</span></option><option value="seller">Seller</option><option value="buyer">Buyer</option><option value="other">Other</option></select></div>
-      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="d_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="d_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="d_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
       <div class="fgrp"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="d_amount" type="number" placeholder="0"></div>
       <div class="fgrp full"><label><span class="bn">কারণ</span><span class="en">Reason</span></label><input id="d_desc" placeholder="..."></div>
     </div>
@@ -589,7 +598,7 @@ tr:hover td{background:var(--bg);}
     <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন নোট</span><span class="en">New Note</span></h3></div>
       <div class="fg">
         <div class="fgrp"><label><span class="bn">শিরোনাম</span><span class="en">Title</span></label><input id="nt_title" placeholder="..."></div>
-        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="nt_date" type="date"></div>
+        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="nt_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="nt_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
         <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label>
           <select id="nt_type">
             <option value="general"><span class="bn">সাধারণ</span></option>
@@ -648,7 +657,7 @@ tr:hover td{background:var(--bg);}
 
     <div class="card"><div class="card-hd"><h3>➕ <span class="bn">মূলধন এন্ট্রি</span><span class="en">Capital Entry</span></h3></div>
       <div class="fg">
-        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="cap_date" type="date"></div>
+        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="cap_date-txt" class="date-text" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="cap_date" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
         <div class="fgrp"><label><span class="bn">অংশীদার</span><span class="en">Partner</span></label>
           <select id="cap_partner">
             <option value="masud">Masud (40%)</option>
@@ -724,7 +733,7 @@ tr:hover td{background:var(--bg);}
     <div class="mo-hd"><h3>💳 <span class="bn">বাকি শোধ</span><span class="en">Settle Due</span></h3><button class="mo-cl" onclick="closePayM()">✕</button></div>
     <div class="mo-bd">
       <div class="fgrp" style="margin-bottom:11px"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="pay_amt" type="number" placeholder="0" style="width:100%;padding:8px 11px;border:1.5px solid var(--input-border);border-radius:7px;font-size:0.9rem;outline:none;background:var(--input-bg);color:var(--td);"></div>
-      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="pay_dt" type="date" style="width:100%;padding:8px 11px;border:1.5px solid var(--input-border);border-radius:7px;font-size:0.9rem;outline:none;background:var(--input-bg);color:var(--td);"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><div class="date-wrap"><input id="pay_dt-txt" class="date-text modal-date" placeholder="dd/mm/yyyy" autocomplete="off"><button type="button" class="cal-btn" title="Calendar">📅</button><input id="pay_dt" type="date" style="position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;pointer-events:none;"></div></div>
     </div>
     <div class="mo-ac"><button class="btn btn-p" onclick="confirmPay()"><span class="bn">শোধ নিশ্চিত করুন</span><span class="en">Confirm Payment</span></button></div>
   </div>
@@ -821,6 +830,7 @@ function doLogin(){
   // Start Firebase listener — this will load data and render
   if(!fbReady){listenFirebase();}
   else{renderDashboard();}
+  setTimeout(initDateInputs,300);
 }
 function doLogout(){
   currentUser=null;localStorage.removeItem('ag_session');
@@ -848,6 +858,59 @@ function changePassword(){
 }
 (function(){const s=localStorage.getItem('ag_session');if(s){document.getElementById('loginUser').value=s;selectUser(s);}})();
 
+
+// ══════════ SMART DATE INPUT ══════════
+// Converts yyyy-mm-dd ↔ dd/mm/yyyy for display
+function toDisplay(v){if(!v)return'';const p=v.split('-');if(p.length===3&&p[0].length===4)return p[2]+'/'+p[1]+'/'+p[0];return v;}
+function toISO(v){if(!v)return'';v=v.trim();
+  // Already ISO
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v;
+  // dd/mm/yyyy or dd-mm-yyyy
+  const p=v.split(/[\/\-\.]/);
+  if(p.length===3){
+    if(p[2].length===4)return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');
+    if(p[0].length===4)return p[0]+'-'+p[1].padStart(2,'0')+'-'+p[2].padStart(2,'0');
+  }
+  return v;
+}
+function initDateInputs(){
+  document.querySelectorAll('.date-wrap').forEach(wrap=>{
+    const txt=wrap.querySelector('.date-text');
+    const hidden=wrap.querySelector('input[type="date"]');
+    const calBtn=wrap.querySelector('.cal-btn');
+    if(!txt||!hidden)return;
+    // Sync hidden→text on load
+    if(hidden.value)txt.value=toDisplay(hidden.value);
+    // Text typed → update hidden ISO value
+    txt.addEventListener('input',()=>{
+      const iso=toISO(txt.value);
+      if(/^\d{4}-\d{2}-\d{2}$/.test(iso))hidden.value=iso;
+    });
+    txt.addEventListener('blur',()=>{
+      const iso=toISO(txt.value);
+      if(/^\d{4}-\d{2}-\d{2}$/.test(iso)){hidden.value=iso;txt.value=toDisplay(iso);}
+    });
+    // Cal button → open native picker
+    if(calBtn){calBtn.addEventListener('click',()=>{hidden.removeAttribute('style');hidden.style.cssText='position:absolute;right:0;top:0;opacity:0;width:34px;height:100%;cursor:pointer;';hidden.showPicker?hidden.showPicker():hidden.click();});}
+    // Native picker changed → update text
+    hidden.addEventListener('change',()=>{if(hidden.value)txt.value=toDisplay(hidden.value);});
+  });
+}
+// Get ISO value from a date-wrap group
+function getDateVal(id){
+  const hidden=document.getElementById(id);
+  if(!hidden)return'';
+  const txt=document.getElementById(id+'-txt');
+  if(txt){const iso=toISO(txt.value);if(/^\d{4}-\d{2}-\d{2}$/.test(iso))return iso;}
+  return hidden.value||'';
+}
+// Set value to a date-wrap group
+function setDateVal(id,isoVal){
+  const hidden=document.getElementById(id);
+  const txt=document.getElementById(id+'-txt');
+  if(hidden)hidden.value=isoVal;
+  if(txt)txt.value=toDisplay(isoVal);
+}
 // ══════════ FIREBASE CONFIG ══════════
 const firebaseConfig = {
   apiKey: "AIzaSyC3RKVCZRvA0ZQI3nVAH9_vSdGbgg52uQs",
@@ -964,6 +1027,7 @@ function showPage(id){
     if(item.getAttribute('onclick')===`showPage('${id}')`)item.classList.add('active');
   });
   if(PG[id])PG[id]();
+  setTimeout(initDateInputs,50);
 }
 
 // ══════════ LAND (inline edit) ══════════
@@ -1067,8 +1131,8 @@ function addPlan(){
   if(!land||!crop){showToast('Select land & crop',false);return;}
   DB.plans.push({id:nid('PL','pl'),land,crop,
     year:parseInt(document.getElementById('pl_year').value)||new Date().getFullYear(),
-    start:document.getElementById('pl_start').value,
-    harvest:document.getElementById('pl_harvest').value,
+    start:getDateVal('pl_start'),
+    harvest:getDateVal('pl_harvest'),
     note:document.getElementById('pl_note').value.trim()});
   save();renderPlans();
   cfmSuccess('📋',
@@ -1091,7 +1155,7 @@ function renderPlans(){
 function popLF(){
   document.getElementById('lb_land').innerHTML=DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
   document.getElementById('lb_crop').innerHTML=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  if(!document.getElementById('lb_date').value)document.getElementById('lb_date').value=tod();
+  if(!getDateVal('lb_date'))getDateVal('lb_date')=tod();
 }
 function addLabor(){
   const name=document.getElementById('lb_name').value.trim();
@@ -1099,7 +1163,7 @@ function addLabor(){
   const days=parseFloat(document.getElementById('lb_days').value)||1;
   if(!name||!rate){showToast('Enter name & wage',false);return;}
   const ps=document.getElementById('lb_paid').value;
-  DB.labors.push({id:nid('LB','lb'),name,date:document.getElementById('lb_date').value,
+  DB.labors.push({id:nid('LB','lb'),name,date:getDateVal('lb_date'),
     land:document.getElementById('lb_land').value,crop:document.getElementById('lb_crop').value,
     type:document.getElementById('lb_type').value,days,rate,total:days*rate,
     paid_status:ps,paid_amount:ps==='paid'?days*rate:0});
@@ -1156,7 +1220,7 @@ function popEF(){
   document.getElementById('ef_land').innerHTML='<option value="">All Lands</option>'+lo;
   document.getElementById('e_crop').innerHTML=co;
   document.getElementById('ef_crop').innerHTML='<option value="">All Crops</option>'+co;
-  if(!document.getElementById('e_date').value)document.getElementById('e_date').value=tod();
+  if(!getDateVal('e_date'))getDateVal('e_date')=tod();
   // Populate year filter
   const yrs=[...new Set(DB.expenses.map(e=>e.date?e.date.substring(0,4):null).filter(Boolean))].sort().reverse();
   const ey=document.getElementById('ef_year');
@@ -1164,8 +1228,8 @@ function popEF(){
 }
 function addExpense(){
   const amount=parseFloat(document.getElementById('e_amount').value)||0;
-  if(!document.getElementById('e_date').value||!amount){showToast('Enter date & amount',false);return;}
-  DB.expenses.push({id:nid('E','e'),date:document.getElementById('e_date').value,
+  if(!getDateVal('e_date')||!amount){showToast('Enter date & amount',false);return;}
+  DB.expenses.push({id:nid('E','e'),date:getDateVal('e_date'),
     land:document.getElementById('e_land').value,crop:document.getElementById('e_crop').value,
     cat:document.getElementById('e_cat').value,amount,desc:document.getElementById('e_desc').value.trim()});
   save();renderExpenses();
@@ -1197,7 +1261,7 @@ function popIF(){
   const co=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('i_land').innerHTML=lo;document.getElementById('if_land').innerHTML='<option value="">All</option>'+lo;
   document.getElementById('i_crop').innerHTML=co;document.getElementById('if_crop').innerHTML='<option value="">All</option>'+co;
-  if(!document.getElementById('i_date').value)document.getElementById('i_date').value=tod();
+  if(!getDateVal('i_date'))getDateVal('i_date')=tod();
   // Populate year filter
   const yrs=[...new Set(DB.incomes.map(i=>i.date?i.date.substring(0,4):null).filter(Boolean))].sort().reverse();
   const iy=document.getElementById('if_year');
@@ -1205,8 +1269,8 @@ function popIF(){
 }
 function addIncome(){
   const total=parseFloat(document.getElementById('i_total').value)||0;
-  if(!document.getElementById('i_date').value||!total){showToast('Enter date & total',false);return;}
-  DB.incomes.push({id:nid('I','i'),date:document.getElementById('i_date').value,
+  if(!getDateVal('i_date')||!total){showToast('Enter date & total',false);return;}
+  DB.incomes.push({id:nid('I','i'),date:getDateVal('i_date'),
     land:document.getElementById('i_land').value,crop:document.getElementById('i_crop').value,
     product:document.getElementById('i_product').value.trim(),qty:document.getElementById('i_qty').value.trim(),
     price:parseFloat(document.getElementById('i_price').value)||0,total});
@@ -1239,7 +1303,7 @@ function addDue(){
   const amount=parseFloat(document.getElementById('d_amount').value)||0;
   if(!name||!amount){showToast('Enter name & amount',false);return;}
   DB.dues.push({id:nid('D','d'),name,type:document.getElementById('d_type').value,
-    date:document.getElementById('d_date').value||tod(),amount,
+    date:getDateVal('d_date')||tod(),amount,
     desc:document.getElementById('d_desc').value.trim(),paid:0,payments:[]});
   save();renderDues();
   cfmSuccess('🔴',
@@ -1249,12 +1313,12 @@ function addDue(){
 }
 function delDue(id){if(!confirm('Delete?'))return;DB.dues=DB.dues.filter(x=>x.id!==id);save();renderDues();}
 let payDueId=null;
-function openPayM(id){payDueId=id;document.getElementById('payModal').style.display='flex';document.getElementById('pay_amt').value='';document.getElementById('pay_dt').value=tod();}
+function openPayM(id){payDueId=id;document.getElementById('payModal').style.display='flex';document.getElementById('pay_amt').value='';setDateVal('pay_dt',tod());setTimeout(initDateInputs,30);}
 function closePayM(){document.getElementById('payModal').style.display='none';payDueId=null;}
 function confirmPay(){
   const amount=parseFloat(document.getElementById('pay_amt').value)||0;if(!amount){showToast('Enter amount',false);return;}
   const due=DB.dues.find(x=>x.id===payDueId);if(!due)return;
-  due.paid=(due.paid||0)+amount;due.payments=due.payments||[];due.payments.push({amount,date:document.getElementById('pay_dt').value||tod()});
+  due.paid=(due.paid||0)+amount;due.payments=due.payments||[];due.payments.push({amount,date:getDateVal('pay_dt')||tod()});
   save();renderDues();closePayM();
   cfmSuccess('✅',
     document.documentElement.getAttribute('data-lang')==='en'?'Payment Confirmed!':'শোধ নিশ্চিত হয়েছে!',
@@ -1506,7 +1570,7 @@ function addNote(){
   const body=document.getElementById('nt_body').value.trim();
   if(!title&&!body){showToast('Title or content required',false);return;}
   DB.notes.push({id:nid('NT','nt'),title,body,
-    date:document.getElementById('nt_date').value||tod(),
+    date:getDateVal('nt_date')||tod(),
     type:document.getElementById('nt_type').value});
   save();renderNotes();showToast('Note saved ✅');
   ['nt_title','nt_body'].forEach(id=>document.getElementById(id).value='');
@@ -1536,8 +1600,8 @@ function switchNoteTab(tab){
   document.getElementById('tab-note').classList.toggle('qb-i',tab==='note');
   document.getElementById('tab-capital').style.opacity=tab==='capital'?'1':'0.6';
   if(tab==='capital'){renderCapital();}
-  if(!document.getElementById('nt_date').value)document.getElementById('nt_date').value=tod();
-  if(!document.getElementById('cap_date').value)document.getElementById('cap_date').value=tod();
+  if(!document.getElementById('nt_date').value)setDateVal('nt_date',tod());
+  if(!document.getElementById('cap_date').value)setDateVal('cap_date',tod());
 }
 
 // ══════════ CAPITAL ══════════
@@ -1547,7 +1611,7 @@ function addCapital(){
   const partner=document.getElementById('cap_partner').value;
   const type=document.getElementById('cap_type').value;
   const desc=document.getElementById('cap_desc').value.trim();
-  const date=document.getElementById('cap_date').value||tod();
+  const date=getDateVal('cap_date')||tod();
   if(partner==='both'){
     DB.capitals.push({id:nid('CP','cp'),date,partner:'masud',type,amount:amount*0.4,desc,note:'(40% of '+amount+')'});
     DB.capitals.push({id:nid('CP','cp'),date,partner:'mosiar',type,amount:amount*0.6,desc,note:'(60% of '+amount+')'});
