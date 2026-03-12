@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="bn" data-theme="forest" data-lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কৃষি হিসাব — Krishi Hisab</title>
+<meta name="theme-color" content="#1a3a2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="কৃষি হিসাব">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Tiro+Bangla&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<style>
+/* ═══════════════════════════════════
+   THEMES — 4 themes
+═══════════════════════════════════ */
+:root,[data-theme="forest"]{
+  --sb:#1a3a2a;--sbm:#2d6a4f;--sbt:rgba(183,228,199,0.75);--sbta:#b7e4c7;--sba:rgba(82,183,136,0.15);--sbac:#52b788;
+  --bg:#f0f7f2;--card:#fff;--border:#e2ece6;--input-bg:#fafffe;--input-border:#d1e8da;
+  --accent:#2d6a4f;--accent2:#52b788;--accentT:#b7e4c7;
+  --td:#1a1a2e;--tm:#4a5568;--sh:0 4px 20px rgba(26,58,42,0.11);--r:13px;
+  --red:#e63946;--gold:#f4a261;--blue:#457b9d;--purple:#7c3aed;
+  --font-main:'Hind Siliguri',sans-serif;--font-head:'Tiro Bangla',serif;
+}
+[data-theme="sky"]{
+  --sb:#1e3a5f;--sbm:#2563a8;--sbt:rgba(186,220,255,0.75);--sbta:#bae0ff;--sba:rgba(59,130,246,0.15);--sbac:#60a5fa;
+  --bg:#f0f6ff;--card:#fff;--border:#dbeafe;--input-bg:#f8faff;--input-border:#bfdbfe;
+  --accent:#2563a8;--accent2:#60a5fa;--accentT:#bae0ff;
+  --td:#1e293b;--tm:#475569;--sh:0 4px 20px rgba(30,58,95,0.11);--r:13px;
+}
+[data-theme="earth"]{
+  --sb:#3d2b1f;--sbm:#7c5c3e;--sbt:rgba(230,200,170,0.75);--sbta:#e6c8aa;--sba:rgba(180,130,80,0.15);--sbac:#d4a373;
+  --bg:#fdf6ee;--card:#fff;--border:#ede0d4;--input-bg:#fffaf5;--input-border:#e8d5c4;
+  --accent:#7c5c3e;--accent2:#d4a373;--accentT:#e6c8aa;
+  --td:#2d1e14;--tm:#6b5344;--sh:0 4px 20px rgba(61,43,31,0.11);--r:13px;
+}
+[data-theme="night"]{
+  --sb:#0f0f1a;--sbm:#1a1a2e;--sbt:rgba(160,160,220,0.7);--sbta:#c0c0f0;--sba:rgba(100,100,200,0.15);--sbac:#8080d0;
+  --bg:#16162a;--card:#1e1e35;--border:#2d2d4a;--input-bg:#252540;--input-border:#3a3a5c;
+  --accent:#8080d0;--accent2:#a0a0e0;--accentT:#c0c0f0;
+  --td:#e0e0f5;--tm:#9090b8;--sh:0 4px 20px rgba(0,0,0,0.35);--r:13px;
+  --red:#ff6b75;--gold:#fbbf5a;--blue:#60a5fa;
+}
+
+/* ═══════════════════════════════════
+   FONT SIZE
+═══════════════════════════════════ */
+html[data-fs="sm"]  { font-size: 13px; }
+html[data-fs="md"]  { font-size: 15px; }
+html[data-fs="lg"]  { font-size: 17px; }
+html[data-fs="xl"]  { font-size: 19px; }
+
+/* ═══════════════════════════════════
+   BASE
+═══════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-main);background:var(--bg);color:var(--td);min-height:100vh;transition:background 0.3s,color 0.3s;}
+[data-lang="en"] .bn{display:none!important;}
+[data-lang="bn"] .en{display:none!important;}
+
+/* ═══════════════════════════════════
+   LOGIN
+═══════════════════════════════════ */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,var(--sb) 0%,var(--sbm) 60%,var(--accent2) 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--card);border-radius:20px;padding:34px 30px;width:100%;max-width:350px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-logo{text-align:center;margin-bottom:20px;}
+.login-logo h1{font-family:var(--font-head);font-size:1.5rem;color:var(--accent);}
+.login-logo p{color:var(--tm);font-size:0.82rem;margin-top:3px;}
+.login-field{margin-bottom:13px;}
+.login-field label{display:block;font-size:0.78rem;font-weight:600;color:var(--accent);margin-bottom:4px;}
+.login-field input{width:100%;padding:9px 12px;border:1.5px solid var(--input-border);border-radius:8px;font-family:var(--font-main);font-size:0.9rem;outline:none;background:var(--input-bg);color:var(--td);transition:border 0.2s;}
+.login-field input:focus{border-color:var(--accent2);}
+.login-chips{display:flex;gap:8px;margin-bottom:18px;justify-content:center;}
+.lp-chip{padding:5px 16px;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all 0.2s;background:var(--bg);color:var(--tm);}
+.lp-chip.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.login-btn{width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:8px;font-family:var(--font-main);font-size:0.95rem;font-weight:600;cursor:pointer;transition:background 0.2s;}
+.login-btn:hover{filter:brightness(1.1);}
+.login-err{color:var(--red);font-size:0.8rem;text-align:center;margin-top:7px;min-height:17px;}
+
+/* ═══════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════ */
+.sidebar{position:fixed;top:0;left:0;width:232px;height:100vh;background:var(--sb);display:flex;flex-direction:column;z-index:100;overflow-y:auto;transition:background 0.3s;}
+.sidebar-logo{padding:20px 16px 13px;}
+.sidebar-logo h1{font-family:var(--font-head);font-size:1.15rem;color:var(--sbta);line-height:1.4;}
+.sidebar-logo p{font-size:0.68rem;color:var(--sbac);margin-top:2px;}
+.user-strip{padding:8px 16px;border-top:1px solid rgba(255,255,255,0.07);border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between;}
+.user-info{font-size:0.75rem;color:var(--sbta);}
+.user-info strong{font-weight:700;}
+.logout-btn{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.65);padding:3px 8px;border-radius:5px;font-size:0.7rem;cursor:pointer;font-family:var(--font-main);}
+.logout-btn:hover{background:var(--red);color:white;border-color:var(--red);}
+
+/* Theme + Lang bar */
+.toolbar-strip{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.tb-label{font-size:0.6rem;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1px;width:100%;margin-bottom:2px;}
+.theme-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;flex-shrink:0;}
+.theme-dot:hover,.theme-dot.active{border-color:#fff;transform:scale(1.15);}
+.td-forest{background:#2d6a4f;}
+.td-sky{background:#2563a8;}
+.td-earth{background:#7c5c3e;}
+.td-night{background:#3a3a6a;}
+
+.lang-btn{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:var(--sbta);padding:3px 9px;border-radius:5px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.lang-btn:hover{background:rgba(255,255,255,0.2);}
+.fs-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:var(--sbta);padding:3px 8px;border-radius:5px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;line-height:1;}
+.fs-btn:hover{background:rgba(255,255,255,0.18);}
+.fs-btn.active{background:var(--sbac);color:var(--sb);border-color:var(--sbac);}
+
+nav{padding:8px 0;flex:1;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:var(--sbt);font-size:0.85rem;font-weight:500;transition:all 0.18s;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:#fff;}
+.nav-item.active{background:var(--sba);color:var(--sbta);border-left-color:var(--sbac);}
+.nav-item .icon{font-size:0.92rem;width:19px;text-align:center;flex-shrink:0;}
+.nav-sec{padding:10px 16px 2px;font-size:0.58rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.28);}
+.sidebar-footer{padding:9px 14px;border-top:1px solid rgba(255,255,255,0.07);}
+.bk-btns{display:flex;gap:5px;margin-bottom:5px;}
+.bk-btn{flex:1;padding:6px 0;background:rgba(255,255,255,0.07);color:var(--sbta);border:1px solid rgba(255,255,255,0.13);border-radius:6px;font-family:var(--font-main);font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;}
+.bk-btn:hover{background:rgba(255,255,255,0.14);}
+
+/* ═══════════════════════════════════
+   MAIN
+═══════════════════════════════════ */
+.main{margin-left:232px;padding:20px 24px;min-height:100vh;}
+.page{display:none;animation:fadeIn 0.2s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.page-header{margin-bottom:16px;}
+.page-header h2{font-family:var(--font-head);font-size:1.4rem;color:var(--accent);}
+.page-header p{color:var(--tm);font-size:0.84rem;margin-top:2px;}
+
+/* Quick bar */
+.quick-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.quick-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;border:none;font-family:var(--font-main);font-size:0.84rem;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.quick-btn:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.15);}
+.qb-e{background:linear-gradient(135deg,#e63946,#c1121f);color:white;}
+.qb-i{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;}
+.qb-d{background:linear-gradient(135deg,#f4a261,#e76f51);color:white;}
+
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:18px;}
+.stat-card{background:var(--card);border-radius:var(--r);padding:15px;box-shadow:var(--sh);border-top:4px solid transparent;position:relative;overflow:hidden;transition:background 0.3s;}
+.stat-card::after{content:attr(data-icon);position:absolute;right:10px;top:10px;font-size:1.45rem;opacity:0.1;}
+.stat-card.c-green{border-top-color:var(--accent2);}
+.stat-card.c-gold{border-top-color:#f4a261;}
+.stat-card.c-earth{border-top-color:#d4a373;}
+.stat-card.c-red{border-top-color:var(--red);}
+.stat-card.c-blue{border-top-color:var(--blue);}
+.stat-card.c-purple{border-top-color:var(--purple);}
+.stat-card label{font-size:0.69rem;color:var(--tm);display:block;margin-bottom:4px;font-weight:500;}
+.stat-card .val{font-size:1.3rem;font-weight:700;color:var(--td);}
+.stat-card .sub{font-size:0.69rem;color:var(--tm);margin-top:2px;}
+
+/* Card */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px;transition:background 0.3s;}
+.card-hd{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to right,var(--sb),var(--sbm));color:white;}
+.card-hd h3{font-size:0.9rem;font-weight:600;}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+thead{background:var(--bg);}
+th{padding:8px 11px;text-align:left;font-weight:600;color:var(--accent);border-bottom:2px solid var(--border);font-size:0.74rem;}
+td{padding:8px 11px;border-bottom:1px solid var(--border);color:var(--td);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg);}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.68rem;font-weight:600;}
+.bg{background:#d8f3dc;color:#1b4332;}.by{background:#fff3cd;color:#856404;}
+.br{background:#ffe0e0;color:#7f1d1d;}.bb{background:#dbeafe;color:#1e40af;}
+.pp{color:var(--accent);font-weight:700;}.pn{color:var(--red);font-weight:700;}
+
+/* Forms */
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:12px;padding:15px;}
+.fgrp{display:flex;flex-direction:column;gap:3px;}
+.fgrp label{font-size:0.75rem;font-weight:600;color:var(--accent);}
+.fgrp input,.fgrp select,.fgrp textarea{padding:7px 10px;border:1.5px solid var(--input-border);border-radius:7px;font-family:var(--font-main);font-size:0.83rem;color:var(--td);background:var(--input-bg);transition:border 0.2s;outline:none;}
+.fgrp input:focus,.fgrp select:focus,.fgrp textarea:focus{border-color:var(--accent2);}
+.fgrp.full{grid-column:1/-1;}
+.fa{padding:0 15px 15px;display:flex;gap:7px;flex-wrap:wrap;}
+.btn{padding:7px 15px;border-radius:7px;border:none;font-family:var(--font-main);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.btn-p{background:var(--accent);color:white;}.btn-p:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-d{background:#fee2e2;color:var(--red);border:1px solid #fca5a5;}.btn-d:hover{background:var(--red);color:white;}
+.btn-e{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}.btn-e:hover{background:#f59e0b;color:white;}
+.btn-i{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}.btn-i:hover{background:#1e40af;color:white;}
+.btn-sm{padding:3px 9px;font-size:0.73rem;}
+.edit-input{width:100%;padding:4px 7px;border:1.5px solid var(--accent2);border-radius:5px;font-family:var(--font-main);font-size:0.81rem;background:var(--input-bg);color:var(--td);outline:none;}
+
+/* Profit summary */
+.ps-box{background:linear-gradient(135deg,var(--sb),var(--sbm));color:white;border-radius:var(--r);padding:18px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;box-shadow:var(--sh);}
+.ps-box .item label{font-size:0.68rem;opacity:0.72;display:block;}
+.ps-box .item .v{font-size:1.25rem;font-weight:700;margin-top:2px;}
+.ps-box .item.hl .v{color:var(--accentT);}
+.pc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:15px;}
+.pc{border-radius:var(--r);padding:15px;}
+.pc.m{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);}
+.pc.mo{background:linear-gradient(135deg,#e3f2fd,#bbdefb);}
+[data-theme="night"] .pc.m{background:linear-gradient(135deg,#1a3a2a,#2d4a3a);}
+[data-theme="night"] .pc.mo{background:linear-gradient(135deg,#1e2a3a,#1a3050);}
+.pc h4{font-size:0.9rem;font-weight:700;margin-bottom:2px;color:var(--td);}
+.pc .sp{font-size:0.72rem;color:var(--tm);margin-bottom:8px;}
+.pc .amt{font-size:1.5rem;font-weight:700;color:var(--accent);}
+
+/* Cat bars */
+.cb{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.cb .cl{width:100px;font-size:0.78rem;color:var(--tm);flex-shrink:0;}
+.cb-tr{flex:1;background:var(--border);border-radius:4px;height:13px;overflow:hidden;}
+.cb-fi{height:100%;background:var(--accent2);border-radius:4px;transition:width 0.6s;}
+.cb .cv{width:75px;text-align:right;font-size:0.78rem;font-weight:600;color:var(--td);}
+
+/* Modal */
+.mo-ov{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:14px;}
+.mo-bx{background:var(--card);border-radius:var(--r);width:100%;max-width:450px;box-shadow:0 8px 40px rgba(0,0,0,0.25);overflow:hidden;}
+.mo-hd{padding:12px 16px;background:linear-gradient(to right,var(--sb),var(--sbm));color:white;display:flex;justify-content:space-between;align-items:center;}
+.mo-hd h3{font-size:0.92rem;font-weight:600;}
+.mo-cl{background:none;border:none;color:white;font-size:1.1rem;cursor:pointer;}
+.mo-bd{padding:15px;}
+.mo-ac{padding:0 15px 15px;display:flex;gap:7px;}
+
+/* Due status */
+.ds-paid{color:var(--accent);font-weight:700;}
+.ds-partial{color:#f4a261;font-weight:700;}
+.ds-unpaid{color:var(--red);font-weight:700;}
+
+/* Toast */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--accent);color:white;padding:10px 16px;border-radius:9px;font-size:0.83rem;font-weight:500;box-shadow:0 4px 20px rgba(0,0,0,0.2);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:9999;}
+#syncStatus{position:fixed;top:10px;right:12px;font-size:0.7rem;padding:3px 10px;border-radius:12px;font-weight:600;z-index:9998;transition:all 0.3s;}
+#syncStatus.syncing{background:#fef3c7;color:#92400e;}
+#syncStatus.synced{background:#d8f3dc;color:#1b4332;}
+#syncStatus.offline{background:#fee2e2;color:#7f1d1d;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* PWA */
+#pwa-bn{position:fixed;bottom:0;left:0;right:0;background:var(--sb);color:white;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;z-index:300;transform:translateY(100%);transition:transform 0.3s;}
+#pwa-bn.show{transform:translateY(0);}
+#pwa-bn p{font-size:0.8rem;}
+.pwa-btns button{padding:6px 12px;border-radius:6px;border:none;font-family:var(--font-main);font-size:0.78rem;font-weight:600;cursor:pointer;margin-left:6px;}
+.pwa-in{background:var(--accent2);color:var(--sb);}
+.pwa-di{background:rgba(255,255,255,0.15);color:white;}
+
+.empty{text-align:center;padding:30px;color:var(--tm);}
+.empty .ei{font-size:1.9rem;margin-bottom:6px;}
+
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:relative;}
+  .sidebar-logo{padding:9px 13px;}
+  .sidebar-logo h1{font-size:0.95rem;}
+  .nav-sec,.sidebar-footer,.toolbar-strip .tb-label{display:none;}
+  .toolbar-strip{padding:5px 8px;}
+  nav{display:flex;flex-wrap:wrap;padding:3px;gap:1px;}
+  .nav-item{padding:7px 8px;border-left:none;border-bottom:2px solid transparent;font-size:0.74rem;gap:3px;}
+  .nav-item.active{border-bottom-color:var(--sbac);border-left:none;}
+  .main{margin-left:0;padding:10px;}
+  .ps-box{grid-template-columns:1fr;gap:8px;}
+  .pc-grid{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>🌾 <span class="bn">কৃষি হিসাব</span><span class="en">Krishi Hisab</span></h1>
+      <p>Masud & Mosiar Project</p>
+    </div>
+    <div class="login-chips">
+      <div class="lp-chip active" id="chip-masud" onclick="selectUser('masud')">🧑‍🌾 Masud</div>
+      <div class="lp-chip" id="chip-mosiar" onclick="selectUser('mosiar')">🧑‍🌾 Mosiar</div>
+    </div>
+    <div class="login-field">
+      <label><span class="bn">ব্যবহারকারী</span><span class="en">Username</span></label>
+      <input id="loginUser" type="text" placeholder="masud / mosiar" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label><span class="bn">পাসওয়ার্ড</span><span class="en">Password</span></label>
+      <input id="loginPass" type="password" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()"><span class="bn">প্রবেশ করুন</span><span class="en">Login</span></button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap" style="display:none">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>🌾 <span class="bn">কৃষি হিসাব</span><span class="en">Krishi Hisab</span></h1>
+    <p>Masud & Mosiar Project</p>
+  </div>
+  <div class="user-strip">
+    <div class="user-info">👤 <strong id="currentUserLabel">—</strong></div>
+    <button class="logout-btn" onclick="doLogout()"><span class="bn">লগআউট</span><span class="en">Logout</span></button>
+  </div>
+
+  <!-- Theme + Language toolbar -->
+  <div class="toolbar-strip">
+    <div class="tb-label"><span class="bn">থিম</span><span class="en">Theme</span></div>
+    <div class="theme-dot td-forest active" id="td-forest" onclick="setTheme('forest')" title="Forest"></div>
+    <div class="theme-dot td-sky"    id="td-sky"    onclick="setTheme('sky')"    title="Sky"></div>
+    <div class="theme-dot td-earth"  id="td-earth"  onclick="setTheme('earth')"  title="Earth"></div>
+    <div class="theme-dot td-night"  id="td-night"  onclick="setTheme('night')"  title="Night"></div>
+    <button class="lang-btn" id="langToggleBtn" onclick="toggleLang()">EN</button>
+  </div>
+  <div class="toolbar-strip" style="gap:4px;padding-top:5px;padding-bottom:7px;">
+    <div class="tb-label" style="display:block!important"><span class="bn">অক্ষর</span><span class="en">Font</span></div>
+    <button class="fs-btn" id="fs-sm" onclick="setFS('sm')">A-</button>
+    <button class="fs-btn active" id="fs-md" onclick="setFS('md')">A</button>
+    <button class="fs-btn" id="fs-lg" onclick="setFS('lg')">A+</button>
+    <button class="fs-btn" id="fs-xl" onclick="setFS('xl')">A++</button>
+  </div>
+
+  <nav>
+    <div class="nav-sec"><span class="bn">মূল মেনু</span><span class="en">Main</span></div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span><span class="bn">ড্যাশবোর্ড</span><span class="en">Dashboard</span></div>
+    <div class="nav-sec"><span class="bn">ব্যবস্থাপনা</span><span class="en">Management</span></div>
+    <div class="nav-item" onclick="showPage('land')"><span class="icon">🗺️</span><span class="bn">জমি</span><span class="en">Land</span></div>
+    <div class="nav-item" onclick="showPage('crop')"><span class="icon">🌱</span><span class="bn">ফসল</span><span class="en">Crop</span></div>
+    <div class="nav-item" onclick="showPage('plan')"><span class="icon">📋</span><span class="bn">পরিকল্পনা</span><span class="en">Plan</span></div>
+    <div class="nav-item" onclick="showPage('labor')"><span class="icon">👷</span><span class="bn">শ্রমিক</span><span class="en">Labor</span></div>
+    <div class="nav-item" onclick="showPage('stock')"><span class="icon">📦</span><span class="bn">মজুদ</span><span class="en">Stock</span></div>
+    <div class="nav-sec"><span class="bn">হিসাব</span><span class="en">Accounts</span></div>
+    <div class="nav-item" onclick="showPage('expense')"><span class="icon">💸</span><span class="bn">খরচ</span><span class="en">Expense</span></div>
+    <div class="nav-item" onclick="showPage('income')"><span class="icon">💰</span><span class="bn">আয়</span><span class="en">Income</span></div>
+    <div class="nav-item" onclick="showPage('due')"><span class="icon">🔴</span><span class="bn">বাকি/ধার</span><span class="en">Due/Credit</span></div>
+    <div class="nav-sec"><span class="bn">রিপোর্ট</span><span class="en">Reports</span></div>
+    <div class="nav-item" onclick="showPage('profit')"><span class="icon">📈</span><span class="bn">লাভ-ক্ষতি</span><span class="en">Profit/Loss</span></div>
+    <div class="nav-item" onclick="showPage('expReport')"><span class="icon">📉</span><span class="bn">খরচ রিপোর্ট</span><span class="en">Expense Report</span></div>
+    <div class="nav-item" onclick="showPage('yearCompare')"><span class="icon">📅</span><span class="bn">বার্ষিক তুলনা</span><span class="en">Year Compare</span></div>
+    <div class="nav-sec"><span class="bn">অন্যান্য</span><span class="en">Other</span></div>
+    <div class="nav-item" onclick="showPage('notes')"><span class="icon">📝</span><span class="bn">নোট</span><span class="en">Notes</span></div>
+    <div class="nav-sec"><span class="bn">সেটিংস</span><span class="en">Settings</span></div>
+    <div class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span><span class="bn">সেটিংস</span><span class="en">Settings</span></div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="bk-btns">
+      <button class="bk-btn" onclick="exportBackup()">⬇️ <span class="bn">ব্যাকআপ</span><span class="en">Backup</span></button>
+      <label class="bk-btn" style="cursor:pointer">⬆️ <span class="bn">রিস্টোর</span><span class="en">Restore</span><input type="file" accept=".json" onchange="importBackup(event)" style="display:none"></label>
+    </div>
+    <button class="bk-btn" style="width:100%;margin-top:5px;" onclick="emailBackup()">📧 <span class="bn">ইমেইলে ব্যাকআপ</span><span class="en">Email Backup</span></button>
+    <button class="bk-btn" style="width:100%;margin-top:5px;" onclick="printPDF()">🖨️ PDF</button>
+    <div style="text-align:center;padding:8px 0 2px;font-size:0.6rem;color:rgba(255,255,255,0.22);border-top:1px solid rgba(255,255,255,0.07);margin-top:7px;">
+      Web App Developer: <strong style="color:rgba(255,255,255,0.4)">Masud</strong>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="page-header"><h2>📊 <span class="bn">ড্যাশবোর্ড</span><span class="en">Dashboard</span></h2></div>
+  <div class="quick-bar">
+    <button class="quick-btn qb-e" onclick="openQModal('expense')">⚡ <span class="bn">আজকের খরচ</span><span class="en">Today's Expense</span></button>
+    <button class="quick-btn qb-i" onclick="openQModal('income')">⚡ <span class="bn">আজকের আয়</span><span class="en">Today's Income</span></button>
+    <button class="quick-btn qb-d" onclick="openQModal('due')">⚡ <span class="bn">বাকি যোগ</span><span class="en">Add Due</span></button>
+  </div>
+  <div class="stat-grid" id="dashStats"></div>
+  <div class="card">
+    <div class="card-hd"><h3>🌾 <span class="bn">ফসল পরিকল্পনা</span><span class="en">Crop Plans</span></h3></div>
+    <table><thead><tr>
+      <th><span class="bn">জমি</span><span class="en">Land</span></th>
+      <th><span class="bn">ফসল</span><span class="en">Crop</span></th>
+      <th><span class="bn">শুরু</span><span class="en">Start</span></th>
+      <th><span class="bn">ফসল কাটা</span><span class="en">Harvest</span></th>
+      <th><span class="bn">খরচ</span><span class="en">Expense</span></th>
+      <th><span class="bn">আয়</span><span class="en">Income</span></th>
+      <th><span class="bn">লাভ/ক্ষতি</span><span class="en">Profit/Loss</span></th>
+    </tr></thead><tbody id="db-plan"></tbody></table>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>🔴 <span class="bn">বকেয়া বাকি</span><span class="en">Pending Dues</span></h3></div>
+    <table><thead><tr>
+      <th><span class="bn">নাম</span><span class="en">Name</span></th>
+      <th><span class="bn">ধরন</span><span class="en">Type</span></th>
+      <th><span class="bn">মোট বাকি</span><span class="en">Total Due</span></th>
+      <th><span class="bn">শোধ</span><span class="en">Paid</span></th>
+      <th><span class="bn">বাকি আছে</span><span class="en">Remaining</span></th>
+    </tr></thead><tbody id="db-due"></tbody></table>
+  </div>
+</div>
+
+<!-- LAND -->
+<div id="page-land" class="page">
+  <div class="page-header"><h2>🗺️ <span class="bn">জমি ব্যবস্থাপনা</span><span class="en">Land Management</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন জমি</span><span class="en">Add Land</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">জমির নাম</span><span class="en">Land Name</span></label><input id="l_name" placeholder="e.g. পুরাতন জমি"></div>
+      <div class="fgrp"><label><span class="bn">অবস্থান</span><span class="en">Location</span></label><input id="l_loc" placeholder="e.g. হাজারী"></div>
+      <div class="fgrp"><label><span class="bn">আকার (বিঘা)</span><span class="en">Size (Bigha)</span></label><input id="l_size" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">মালিকানা</span><span class="en">Ownership</span></label><select id="l_owner"><option value="Lease"><span class="bn">লিজ</span></option><option value="Own">Own</option></select></div>
+      <div class="fgrp"><label><span class="bn">বার্ষিক খরচ (৳)</span><span class="en">Annual Cost (৳)</span></label><input id="l_rent" type="number" placeholder="0"></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addLand()"><span class="bn">জমি যোগ করুন</span><span class="en">Add Land</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>📋 <span class="bn">জমির তালিকা</span><span class="en">Land List</span> <small style="opacity:0.65;font-size:0.72rem">(✏️ edit)</small></h3></div>
+    <table><thead><tr><th>ID</th><th><span class="bn">নাম</span><span class="en">Name</span></th><th><span class="bn">অবস্থান</span><span class="en">Location</span></th><th><span class="bn">আকার</span><span class="en">Size</span></th><th><span class="bn">মালিকানা</span><span class="en">Type</span></th><th><span class="bn">বার্ষিক খরচ</span><span class="en">Annual Cost</span></th><th></th></tr></thead><tbody id="landTB"></tbody></table></div>
+</div>
+
+<!-- CROP -->
+<div id="page-crop" class="page">
+  <div class="page-header"><h2>🌱 <span class="bn">ফসল তালিকা</span><span class="en">Crop List</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন ফসল</span><span class="en">Add Crop</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">ফসলের নাম</span><span class="en">Crop Name</span></label><input id="c_name" placeholder="e.g. মরিচ"></div>
+      <div class="fgrp"><label><span class="bn">মৌসুম</span><span class="en">Season</span></label><select id="c_season"><option value="Summer"><span class="bn">গ্রীষ্মকালীন</span></option><option value="Winter">Winter</option><option value="Rainy">Rainy</option><option value="Year-round">Year-round</option></select></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addCrop()"><span class="bn">ফসল যোগ করুন</span><span class="en">Add Crop</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>🌱 <span class="bn">ফসলের তালিকা</span><span class="en">Crop List</span> <small style="opacity:0.65;font-size:0.72rem">(✏️ edit)</small></h3></div>
+    <table><thead><tr><th>ID</th><th><span class="bn">নাম</span><span class="en">Name</span></th><th><span class="bn">মৌসুম</span><span class="en">Season</span></th><th></th></tr></thead><tbody id="cropTB"></tbody></table></div>
+</div>
+
+<!-- PLAN -->
+<div id="page-plan" class="page">
+  <div class="page-header"><h2>📋 <span class="bn">ফসল পরিকল্পনা</span><span class="en">Crop Planning</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন পরিকল্পনা</span><span class="en">New Plan</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="pl_land"></select></div>
+      <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="pl_crop"></select></div>
+      <div class="fgrp"><label><span class="bn">বছর</span><span class="en">Year</span></label><input id="pl_year" type="number" placeholder="2025"></div>
+      <div class="fgrp"><label><span class="bn">শুরুর তারিখ</span><span class="en">Start Date</span></label><input id="pl_start" type="date"></div>
+      <div class="fgrp"><label><span class="bn">ফসল কাটার তারিখ</span><span class="en">Harvest Date</span></label><input id="pl_harvest" type="date"></div>
+      <div class="fgrp full"><label><span class="bn">নোট</span><span class="en">Note</span></label><textarea id="pl_note" rows="2" placeholder="..."></textarea></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addPlan()"><span class="bn">পরিকল্পনা যোগ করুন</span><span class="en">Add Plan</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>📋 <span class="bn">পরিকল্পনা তালিকা</span><span class="en">Plan List</span></h3></div>
+    <table><thead><tr><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">ফসল</span><span class="en">Crop</span></th><th><span class="bn">বছর</span><span class="en">Year</span></th><th><span class="bn">শুরু</span><span class="en">Start</span></th><th><span class="bn">ফসল কাটা</span><span class="en">Harvest</span></th><th><span class="bn">নোট</span><span class="en">Note</span></th><th></th></tr></thead><tbody id="planTB"></tbody></table></div>
+</div>
+
+<!-- LABOR -->
+<div id="page-labor" class="page">
+  <div class="page-header"><h2>👷 <span class="bn">শ্রমিক হাজিরা</span><span class="en">Labor Register</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">হাজিরা এন্ট্রি</span><span class="en">Add Attendance</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">শ্রমিকের নাম</span><span class="en">Worker Name</span></label><input id="lb_name" placeholder="..."></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="lb_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="lb_land"></select></div>
+      <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="lb_crop"></select></div>
+      <div class="fgrp"><label><span class="bn">কাজের ধরন</span><span class="en">Work Type</span></label><select id="lb_type"><option>জমি চাষ</option><option>বীজ বপন</option><option>সার দেওয়া</option><option>সেচ দেওয়া</option><option>আগাছা পরিষ্কার</option><option>ফসল কাটা</option><option>বহন</option><option>অন্যান্য</option></select></div>
+      <div class="fgrp"><label><span class="bn">দিনের সংখ্যা</span><span class="en">Days</span></label><input id="lb_days" type="number" value="1" step="0.5" min="0.5"></div>
+      <div class="fgrp"><label><span class="bn">দৈনিক মজুরি (৳)</span><span class="en">Daily Wage (৳)</span></label><input id="lb_rate" type="number" placeholder="500"></div>
+      <div class="fgrp"><label><span class="bn">পরিশোধ</span><span class="en">Payment</span></label><select id="lb_paid"><option value="unpaid"><span class="bn">বাকি</span></option><option value="paid">Paid</option><option value="partial">Partial</option></select></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addLabor()"><span class="bn">হাজিরা যোগ করুন</span><span class="en">Add Entry</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>👷 <span class="bn">শ্রমিক সারসংক্ষেপ</span><span class="en">Worker Summary</span></h3></div>
+    <table><thead><tr><th><span class="bn">শ্রমিক</span><span class="en">Worker</span></th><th><span class="bn">দিন</span><span class="en">Days</span></th><th><span class="bn">মোট মজুরি</span><span class="en">Total</span></th><th><span class="bn">পরিশোধ</span><span class="en">Paid</span></th><th><span class="bn">বাকি</span><span class="en">Due</span></th></tr></thead><tbody id="laborSum"></tbody></table></div>
+  <div class="card"><div class="card-hd"><h3>📋 <span class="bn">বিস্তারিত হাজিরা</span><span class="en">Detailed Attendance</span></h3></div>
+    <table><thead><tr><th><span class="bn">তারিখ</span><span class="en">Date</span></th><th><span class="bn">নাম</span><span class="en">Name</span></th><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">কাজ</span><span class="en">Work</span></th><th><span class="bn">দিন</span><span class="en">Days</span></th><th><span class="bn">মজুরি</span><span class="en">Wage</span></th><th><span class="bn">অবস্থা</span><span class="en">Status</span></th><th></th></tr></thead><tbody id="laborTB"></tbody></table></div>
+</div>
+
+<!-- STOCK -->
+<div id="page-stock" class="page">
+  <div class="page-header"><h2>📦 <span class="bn">মজুদ ট্র্যাকিং</span><span class="en">Stock Tracking</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">মজুদ এন্ট্রি</span><span class="en">Add Stock</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">পণ্যের নাম</span><span class="en">Item Name</span></label><input id="st_name" placeholder="..."></div>
+      <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label><select id="st_type"><option>বীজ</option><option>সার</option><option>কীটনাশক</option><option>যন্ত্রপাতি</option><option>অন্যান্য</option></select></div>
+      <div class="fgrp"><label><span class="bn">কেনা পরিমাণ</span><span class="en">Bought</span></label><input id="st_bought" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">ব্যবহার</span><span class="en">Used</span></label><input id="st_used" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">একক</span><span class="en">Unit</span></label><input id="st_unit" placeholder="kg / L"></div>
+      <div class="fgrp"><label><span class="bn">একক মূল্য (৳)</span><span class="en">Unit Price (৳)</span></label><input id="st_price" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">সতর্কতা সীমা</span><span class="en">Min Alert</span></label><input id="st_min" type="number" placeholder="0"></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addStock()"><span class="bn">মজুদ যোগ করুন</span><span class="en">Add Stock</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>📦 <span class="bn">মজুদের তালিকা</span><span class="en">Stock List</span></h3></div>
+    <table><thead><tr><th><span class="bn">পণ্য</span><span class="en">Item</span></th><th><span class="bn">ধরন</span><span class="en">Type</span></th><th><span class="bn">কেনা</span><span class="en">Bought</span></th><th><span class="bn">ব্যবহার</span><span class="en">Used</span></th><th><span class="bn">বাকি</span><span class="en">Remaining</span></th><th><span class="bn">মূল্য</span><span class="en">Price</span></th><th><span class="bn">মোট</span><span class="en">Total</span></th><th></th></tr></thead><tbody id="stockTB"></tbody></table></div>
+</div>
+
+<!-- EXPENSE -->
+<div id="page-expense" class="page">
+  <div class="page-header"><h2>💸 <span class="bn">খরচ যোগ করুন</span><span class="en">Add Expense</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন খরচ</span><span class="en">New Expense</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="e_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="e_land"></select></div>
+      <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="e_crop"></select></div>
+      <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Category</span></label><select id="e_cat"><option value="Seed">Seed/বীজ</option><option value="Fertilizer">Fertilizer/সার</option><option value="Pesticide">Pesticide/কীটনাশক</option><option value="Labor">Labor/শ্রম</option><option value="Irrigation">Irrigation/সেচ</option><option value="Tools/Equipment">Tools</option><option value="Trellis/Scaffold">Trellis/মাচা</option><option value="Land Rent">Land Rent/জমির খরচ</option><option value="Other">Other/অন্যান্য</option></select></div>
+      <div class="fgrp"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="e_amount" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">বিবরণ</span><span class="en">Description</span></label><input id="e_desc" placeholder="..."></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addExpense()"><span class="bn">খরচ যোগ করুন</span><span class="en">Add Expense</span></button></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>💸 <span class="bn">খরচের তালিকা</span><span class="en">Expense List</span></h3>
+      <div style="display:flex;gap:5px">
+        <select id="ef_year" onchange="renderExpenses()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value=""><span class="bn">সব বছর</span><span class="en">All Years</span></option></select>
+        <select id="ef_month" onchange="renderExpenses()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value="">সব মাস</option><option value="01">জানু</option><option value="02">ফেব্রু</option><option value="03">মার্চ</option><option value="04">এপ্রিল</option><option value="05">মে</option><option value="06">জুন</option><option value="07">জুলাই</option><option value="08">আগস্ট</option><option value="09">সেপ্টে</option><option value="10">অক্টো</option><option value="11">নভে</option><option value="12">ডিসে</option></select>
+        <select id="ef_land" onchange="renderExpenses()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value=""><span class="bn">সব জমি</span></option></select>
+        <select id="ef_crop" onchange="renderExpenses()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value=""><span class="bn">সব ফসল</span></option></select>
+      </div>
+    </div>
+    <table><thead><tr><th><span class="bn">তারিখ</span><span class="en">Date</span></th><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">ফসল</span><span class="en">Crop</span></th><th><span class="bn">ধরন</span><span class="en">Cat</span></th><th><span class="bn">বিবরণ</span><span class="en">Desc</span></th><th>৳</th><th></th></tr></thead><tbody id="expTB"></tbody></table></div>
+</div>
+
+<!-- INCOME -->
+<div id="page-income" class="page">
+  <div class="page-header"><h2>💰 <span class="bn">আয় যোগ করুন</span><span class="en">Add Income</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন আয়</span><span class="en">New Income</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="i_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">জমি</span><span class="en">Land</span></label><select id="i_land"></select></div>
+      <div class="fgrp"><label><span class="bn">ফসল</span><span class="en">Crop</span></label><select id="i_crop"></select></div>
+      <div class="fgrp"><label><span class="bn">পণ্য</span><span class="en">Product</span></label><input id="i_product" placeholder="..."></div>
+      <div class="fgrp"><label><span class="bn">পরিমাণ</span><span class="en">Qty</span></label><input id="i_qty" placeholder="e.g. 500 kg"></div>
+      <div class="fgrp"><label><span class="bn">একক মূল্য (৳)</span><span class="en">Unit Price</span></label><input id="i_price" type="number" placeholder="0"></div>
+      <div class="fgrp"><label><span class="bn">মোট (৳)</span><span class="en">Total (৳)</span></label><input id="i_total" type="number" placeholder="0"></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addIncome()"><span class="bn">আয় যোগ করুন</span><span class="en">Add Income</span></button></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><h3>💰 <span class="bn">আয়ের তালিকা</span><span class="en">Income List</span></h3>
+      <div style="display:flex;gap:5px">
+        <select id="if_year" onchange="renderIncomes()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value="">সব বছর</option></select>
+        <select id="if_month" onchange="renderIncomes()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value="">সব মাস</option><option value="01">জানু</option><option value="02">ফেব্রু</option><option value="03">মার্চ</option><option value="04">এপ্রিল</option><option value="05">মে</option><option value="06">জুন</option><option value="07">জুলাই</option><option value="08">আগস্ট</option><option value="09">সেপ্টে</option><option value="10">অক্টো</option><option value="11">নভে</option><option value="12">ডিসে</option></select>
+        <select id="if_land" onchange="renderIncomes()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value=""></option></select>
+        <select id="if_crop" onchange="renderIncomes()" style="padding:3px 6px;border-radius:5px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.1);color:white;font-size:0.74rem;"><option value=""></option></select>
+      </div>
+    </div>
+    <table><thead><tr><th><span class="bn">তারিখ</span><span class="en">Date</span></th><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">ফসল</span><span class="en">Crop</span></th><th><span class="bn">পণ্য</span><span class="en">Product</span></th><th><span class="bn">পরিমাণ</span><span class="en">Qty</span></th><th><span class="bn">একক</span><span class="en">Unit</span></th><th><span class="bn">মোট</span><span class="en">Total</span></th><th></th></tr></thead><tbody id="incTB"></tbody></table></div>
+</div>
+
+<!-- DUE -->
+<div id="page-due" class="page">
+  <div class="page-header"><h2>🔴 <span class="bn">বাকি / ধার হিসাব</span><span class="en">Due / Credit</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন বাকি</span><span class="en">Add Due</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">নাম</span><span class="en">Name</span></label><input id="d_name" placeholder="..."></div>
+      <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label><select id="d_type"><option value="worker"><span class="bn">শ্রমিক</span></option><option value="seller">Seller</option><option value="buyer">Buyer</option><option value="other">Other</option></select></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="d_date" type="date"></div>
+      <div class="fgrp"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="d_amount" type="number" placeholder="0"></div>
+      <div class="fgrp full"><label><span class="bn">কারণ</span><span class="en">Reason</span></label><input id="d_desc" placeholder="..."></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="addDue()"><span class="bn">বাকি যোগ করুন</span><span class="en">Add Due</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>💳 <span class="bn">বাকির তালিকা</span><span class="en">Due List</span></h3></div>
+    <table><thead><tr><th><span class="bn">নাম</span><span class="en">Name</span></th><th><span class="bn">ধরন</span><span class="en">Type</span></th><th><span class="bn">তারিখ</span><span class="en">Date</span></th><th><span class="bn">মোট বাকি</span><span class="en">Total</span></th><th><span class="bn">শোধ</span><span class="en">Paid</span></th><th><span class="bn">বাকি আছে</span><span class="en">Remaining</span></th><th><span class="bn">অবস্থা</span><span class="en">Status</span></th><th></th><th></th></tr></thead><tbody id="dueTB"></tbody></table></div>
+</div>
+
+<!-- PROFIT -->
+<div id="page-profit" class="page">
+  <div class="page-header"><h2>📈 <span class="bn">লাভ-ক্ষতির রিপোর্ট</span><span class="en">Profit / Loss Report</span></h2></div>
+  <div class="ps-box">
+    <div class="item"><label><span class="bn">মোট খরচ</span><span class="en">Total Expense</span></label><div class="v" id="ps-e">৳ 0</div></div>
+    <div class="item"><label><span class="bn">মোট আয়</span><span class="en">Total Income</span></label><div class="v" id="ps-i">৳ 0</div></div>
+    <div class="item hl"><label><span class="bn">নিট লাভ/ক্ষতি</span><span class="en">Net Profit/Loss</span></label><div class="v" id="ps-p">৳ 0</div></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>📊 <span class="bn">ফসল-ভিত্তিক হিসাব</span><span class="en">Crop-wise Summary</span></h3></div>
+    <table><thead><tr><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">ফসল</span><span class="en">Crop</span></th><th><span class="bn">খরচ</span><span class="en">Expense</span></th><th><span class="bn">আয়</span><span class="en">Income</span></th><th><span class="bn">লাভ/ক্ষতি</span><span class="en">Profit/Loss</span></th></tr></thead><tbody id="profTB"></tbody></table></div>
+  <div class="card"><div class="card-hd"><h3>👥 <span class="bn">অংশীদার ভাগ</span><span class="en">Partner Share</span></h3></div><div class="pc-grid" id="pcGrid"></div></div>
+</div>
+
+<!-- EXP REPORT -->
+<div id="page-expReport" class="page">
+  <div class="page-header"><h2>📉 <span class="bn">খরচের রিপোর্ট</span><span class="en">Expense Report</span></h2></div>
+  <div class="card"><div class="card-hd"><h3><span class="bn">ধরন অনুযায়ী</span><span class="en">By Category</span></h3></div><div style="padding:15px" id="catChart"></div></div>
+  <div class="card"><div class="card-hd"><h3><span class="bn">জমি অনুযায়ী</span><span class="en">By Land</span></h3></div>
+    <table><thead><tr><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">মোট খরচ</span><span class="en">Total</span></th></tr></thead><tbody id="landExpTB"></tbody></table></div>
+</div>
+
+<!-- YEAR COMPARE -->
+<div id="page-yearCompare" class="page">
+  <div class="page-header"><h2>📅 <span class="bn">বার্ষিক তুলনা</span><span class="en">Year Comparison</span></h2></div>
+  <div class="card"><div class="card-hd"><h3><span class="bn">বছর অনুযায়ী</span><span class="en">By Year</span></h3></div>
+    <table><thead><tr><th><span class="bn">বছর</span><span class="en">Year</span></th><th><span class="bn">খরচ</span><span class="en">Expense</span></th><th><span class="bn">আয়</span><span class="en">Income</span></th><th><span class="bn">লাভ/ক্ষতি</span><span class="en">Profit/Loss</span></th></tr></thead><tbody id="yrSum"></tbody></table></div>
+  <div class="card"><div class="card-hd"><h3><span class="bn">ফসল ভিত্তিক তুলনা</span><span class="en">Crop-wise Comparison</span></h3></div>
+    <table><thead><tr><th><span class="bn">ফসল</span><span class="en">Crop</span></th><th><span class="bn">বছর</span><span class="en">Year</span></th><th><span class="bn">জমি</span><span class="en">Land</span></th><th><span class="bn">খরচ</span><span class="en">Expense</span></th><th><span class="bn">আয়</span><span class="en">Income</span></th><th><span class="bn">লাভ/ক্ষতি</span><span class="en">P/L</span></th><th><span class="bn">নোট</span><span class="en">Note</span></th></tr></thead><tbody id="yrCrop"></tbody></table></div>
+</div>
+
+<!-- SETTINGS -->
+<!-- NOTES -->
+<div id="page-notes" class="page">
+  <div class="page-header"><h2>📝 <span class="bn">নোট</span><span class="en">Notes</span></h2></div>
+
+  <!-- Tab switcher -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="quick-btn qb-i active-tab" id="tab-note" onclick="switchNoteTab('note')" style="font-size:0.83rem;padding:7px 14px;">📝 <span class="bn">সাধারণ নোট</span><span class="en">General Notes</span></button>
+    <button class="quick-btn" id="tab-capital" onclick="switchNoteTab('capital')" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;font-size:0.83rem;padding:7px 14px;">💰 <span class="bn">মূলধন হিসাব</span><span class="en">Capital Ledger</span></button>
+  </div>
+
+  <!-- General Notes -->
+  <div id="note-tab-note">
+    <div class="card"><div class="card-hd"><h3>➕ <span class="bn">নতুন নোট</span><span class="en">New Note</span></h3></div>
+      <div class="fg">
+        <div class="fgrp"><label><span class="bn">শিরোনাম</span><span class="en">Title</span></label><input id="nt_title" placeholder="..."></div>
+        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="nt_date" type="date"></div>
+        <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label>
+          <select id="nt_type">
+            <option value="general"><span class="bn">সাধারণ</span></option>
+            <option value="reminder"><span class="bn">রিমাইন্ডার</span></option>
+            <option value="plan"><span class="bn">পরিকল্পনা</span></option>
+            <option value="other"><span class="bn">অন্যান্য</span></option>
+          </select>
+        </div>
+        <div class="fgrp full"><label><span class="bn">বিবরণ</span><span class="en">Details</span></label><textarea id="nt_body" rows="3" placeholder="..."></textarea></div>
+      </div>
+      <div class="fa"><button class="btn btn-p" onclick="addNote()"><span class="bn">নোট সেভ করুন</span><span class="en">Save Note</span></button></div>
+    </div>
+    <div class="card"><div class="card-hd"><h3>📋 <span class="bn">নোটের তালিকা</span><span class="en">Note List</span></h3></div>
+      <div id="notesGrid" style="padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- Capital Ledger -->
+  <div id="note-tab-capital" style="display:none">
+    <div class="ps-box" style="grid-template-columns:repeat(3,1fr)">
+      <div class="item"><label><span class="bn">মোট জমা</span><span class="en">Total Deposit</span></label><div class="v" id="cap-dep">৳ 0</div></div>
+      <div class="item"><label><span class="bn">মোট উত্তোলন</span><span class="en">Total Withdraw</span></label><div class="v" id="cap-wit">৳ 0</div></div>
+      <div class="item hl"><label><span class="bn">বর্তমান মূলধন</span><span class="en">Current Capital</span></label><div class="v" id="cap-bal">৳ 0</div></div>
+    </div>
+    <!-- Masud / Mosiar split -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="pc m"><h4>🧑‍🌾 Masud <small style="font-weight:400;font-size:0.72rem">(40%)</small></h4>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <span style="font-size:0.78rem;color:var(--tm)"><span class="bn">জমা</span><span class="en">Deposit</span></span>
+          <strong id="cap-m-dep" style="color:var(--accent)">৳ 0</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:0.78rem;color:var(--tm)"><span class="bn">উত্তোলন</span><span class="en">Withdraw</span></span>
+          <strong id="cap-m-wit" style="color:var(--red)">৳ 0</strong>
+        </div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+          <span style="font-size:0.8rem;font-weight:600"><span class="bn">নিট</span><span class="en">Net</span></span>
+          <strong id="cap-m-bal" class="pp" style="font-size:1rem">৳ 0</strong>
+        </div>
+      </div>
+      <div class="pc mo"><h4>🧑‍🌾 Mosiar <small style="font-weight:400;font-size:0.72rem">(60%)</small></h4>
+        <div style="display:flex;justify-content:space-between;margin-top:8px">
+          <span style="font-size:0.78rem;color:var(--tm)"><span class="bn">জমা</span><span class="en">Deposit</span></span>
+          <strong id="cap-mo-dep" style="color:var(--accent)">৳ 0</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:0.78rem;color:var(--tm)"><span class="bn">উত্তোলন</span><span class="en">Withdraw</span></span>
+          <strong id="cap-mo-wit" style="color:var(--red)">৳ 0</strong>
+        </div>
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+          <span style="font-size:0.8rem;font-weight:600"><span class="bn">নিট</span><span class="en">Net</span></span>
+          <strong id="cap-mo-bal" class="pp" style="font-size:1rem">৳ 0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="card"><div class="card-hd"><h3>➕ <span class="bn">মূলধন এন্ট্রি</span><span class="en">Capital Entry</span></h3></div>
+      <div class="fg">
+        <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="cap_date" type="date"></div>
+        <div class="fgrp"><label><span class="bn">অংশীদার</span><span class="en">Partner</span></label>
+          <select id="cap_partner">
+            <option value="masud">Masud (40%)</option>
+            <option value="mosiar">Mosiar (60%)</option>
+            <option value="both"><span class="bn">উভয় (অনুপাতে)</span><span class="en">Both (proportional)</span></option>
+          </select>
+        </div>
+        <div class="fgrp"><label><span class="bn">ধরন</span><span class="en">Type</span></label>
+          <select id="cap_type">
+            <option value="deposit"><span class="bn">জমা / Deposit</span></option>
+            <option value="withdraw"><span class="bn">উত্তোলন / Withdraw</span></option>
+          </select>
+        </div>
+        <div class="fgrp"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="cap_amount" type="number" placeholder="0"></div>
+        <div class="fgrp full"><label><span class="bn">কারণ / বিবরণ</span><span class="en">Reason</span></label><input id="cap_desc" placeholder="..."></div>
+      </div>
+      <div class="fa"><button class="btn btn-p" onclick="addCapital()"><span class="bn">এন্ট্রি যোগ করুন</span><span class="en">Add Entry</span></button></div>
+    </div>
+    <div class="card"><div class="card-hd"><h3>💰 <span class="bn">মূলধনের লেজার</span><span class="en">Capital Ledger</span></h3></div>
+      <table><thead><tr>
+        <th><span class="bn">তারিখ</span><span class="en">Date</span></th>
+        <th><span class="bn">অংশীদার</span><span class="en">Partner</span></th>
+        <th><span class="bn">ধরন</span><span class="en">Type</span></th>
+        <th><span class="bn">পরিমাণ</span><span class="en">Amount</span></th>
+        <th><span class="bn">কারণ</span><span class="en">Reason</span></th>
+        <th></th>
+      </tr></thead><tbody id="capitalTB"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div id="page-settings" class="page">
+  <div class="page-header"><h2>⚙️ <span class="bn">সেটিংস</span><span class="en">Settings</span></h2></div>
+  <div class="card"><div class="card-hd"><h3>🔑 <span class="bn">পাসওয়ার্ড পরিবর্তন</span><span class="en">Change Password</span></h3></div>
+    <div class="fg">
+      <div class="fgrp"><label><span class="bn">ব্যবহারকারী</span><span class="en">User</span></label><select id="pw_user"><option value="masud">Masud</option><option value="mosiar">Mosiar</option></select></div>
+      <div class="fgrp"><label><span class="bn">বর্তমান পাসওয়ার্ড</span><span class="en">Current Password</span></label><input id="pw_old" type="password"></div>
+      <div class="fgrp"><label><span class="bn">নতুন পাসওয়ার্ড</span><span class="en">New Password</span></label><input id="pw_new" type="password"></div>
+      <div class="fgrp"><label><span class="bn">নিশ্চিত করুন</span><span class="en">Confirm</span></label><input id="pw_confirm" type="password"></div>
+    </div>
+    <div class="fa"><button class="btn btn-p" onclick="changePassword()"><span class="bn">পরিবর্তন করুন</span><span class="en">Update Password</span></button></div>
+  </div>
+  <div class="card"><div class="card-hd"><h3>ℹ️ <span class="bn">অ্যাপ তথ্য</span><span class="en">App Info</span></h3></div>
+    <div style="padding:15px;font-size:0.86rem;line-height:1.9;color:var(--tm)">
+      <p>🌾 <strong><span class="bn">কৃষি হিসাব</span><span class="en">Krishi Hisab</span></strong> — Masud & Mosiar</p>
+      <p>📱 <span class="bn">অফলাইনে কাজ করে | ডেটা ব্রাউজারে সেভ</span><span class="en">Works offline | Data saved in browser</span></p>
+      <p>⬇️ <span class="bn">নিয়মিত ব্যাকআপ রাখুন — সাইডবার থেকে</span><span class="en">Take regular backups from sidebar</span></p>
+      <div style="margin-top:12px;padding:10px 13px;background:var(--bg);border-radius:8px;border-left:3px solid var(--accent2)">
+        <div style="font-size:0.72rem;color:var(--tm);margin-bottom:2px"><span class="bn">ওয়েব অ্যাপ ডেভেলপার</span><span class="en">Web App Developer</span></div>
+        <div style="font-size:1rem;font-weight:700;color:var(--accent)">Masud</div>
+        <div style="font-size:0.7rem;color:var(--tm)">📞 01722079625</div>
+      </div>
+      <p style="margin-top:10px;font-size:0.74rem;opacity:0.55">v3.2 | 2026</p>
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- /appWrap -->
+
+<!-- Quick Modal -->
+<div id="qModal" class="mo-ov" style="display:none" onclick="if(event.target===this)closeQM()">
+  <div class="mo-bx">
+    <div class="mo-hd"><h3 id="qm-title">⚡</h3><button class="mo-cl" onclick="closeQM()">✕</button></div>
+    <div class="mo-bd" id="qm-body"></div>
+    <div class="mo-ac" id="qm-ac"></div>
+  </div>
+</div>
+
+<!-- Pay Modal -->
+<div id="payModal" class="mo-ov" style="display:none" onclick="if(event.target===this)closePayM()">
+  <div class="mo-bx">
+    <div class="mo-hd"><h3>💳 <span class="bn">বাকি শোধ</span><span class="en">Settle Due</span></h3><button class="mo-cl" onclick="closePayM()">✕</button></div>
+    <div class="mo-bd">
+      <div class="fgrp" style="margin-bottom:11px"><label><span class="bn">পরিমাণ (৳)</span><span class="en">Amount (৳)</span></label><input id="pay_amt" type="number" placeholder="0" style="width:100%;padding:8px 11px;border:1.5px solid var(--input-border);border-radius:7px;font-size:0.9rem;outline:none;background:var(--input-bg);color:var(--td);"></div>
+      <div class="fgrp"><label><span class="bn">তারিখ</span><span class="en">Date</span></label><input id="pay_dt" type="date" style="width:100%;padding:8px 11px;border:1.5px solid var(--input-border);border-radius:7px;font-size:0.9rem;outline:none;background:var(--input-bg);color:var(--td);"></div>
+    </div>
+    <div class="mo-ac"><button class="btn btn-p" onclick="confirmPay()"><span class="bn">শোধ নিশ্চিত করুন</span><span class="en">Confirm Payment</span></button></div>
+  </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="mo-ov" style="display:none">
+  <div class="mo-bx" style="max-width:340px;text-align:center">
+    <div style="padding:28px 24px 10px">
+      <div style="font-size:2.8rem;margin-bottom:10px" id="cfm-icon">✅</div>
+      <div style="font-size:1.05rem;font-weight:700;color:var(--td);margin-bottom:6px" id="cfm-title">সেভ হয়েছে!</div>
+      <div style="font-size:0.84rem;color:var(--tm);line-height:1.6" id="cfm-body"></div>
+    </div>
+    <div style="padding:14px 20px 20px;display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-p" style="min-width:90px" onclick="closeConfirm(true)" id="cfm-ok">
+        <span class="bn">✅ ঠিক আছে</span><span class="en">✅ OK</span>
+      </button>
+      <button class="btn btn-d" style="min-width:90px" onclick="closeConfirm(false)" id="cfm-cancel" style="display:none">
+        <span class="bn">বাতিল</span><span class="en">Cancel</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="syncStatus">🔄 connecting...</div>
+<div id="toast"></div>
+<div id="pwa-bn">
+  <p>📱 <span class="bn">মোবাইলে ইনস্টল করুন</span><span class="en">Install as App</span></p>
+  <div class="pwa-btns">
+    <button class="pwa-in" id="pwaBtn"><span class="bn">ইনস্টল</span><span class="en">Install</span></button>
+    <button class="pwa-di" onclick="document.getElementById('pwa-bn').classList.remove('show')"><span class="bn">পরে</span><span class="en">Later</span></button>
+  </div>
+</div>
+<script>
+// ══════════ THEME & LANG ══════════
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('ag_theme',t);
+  document.querySelectorAll('.theme-dot').forEach(d=>d.classList.remove('active'));
+  const el=document.getElementById('td-'+t);
+  if(el)el.classList.add('active');
+}
+function setFS(s){
+  document.documentElement.setAttribute('data-fs',s);
+  localStorage.setItem('ag_fs',s);
+  document.querySelectorAll('.fs-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('fs-'+s);if(el)el.classList.add('active');
+}
+function toggleLang(){
+  const cur=document.documentElement.getAttribute('data-lang')||'bn';
+  const next=cur==='bn'?'en':'bn';
+  document.documentElement.setAttribute('data-lang',next);
+  localStorage.setItem('ag_lang',next);
+  document.getElementById('langToggleBtn').textContent=next==='bn'?'EN':'বাং';
+}
+// init theme+lang
+(function(){
+  const t=localStorage.getItem('ag_theme')||'forest';
+  const l=localStorage.getItem('ag_lang')||'bn';
+  const fs=localStorage.getItem('ag_fs')||'md';
+  document.documentElement.setAttribute('data-theme',t);
+  document.documentElement.setAttribute('data-lang',l);
+  document.documentElement.setAttribute('data-fs',fs);
+  document.querySelectorAll('.theme-dot').forEach(d=>d.classList.remove('active'));
+  const el=document.getElementById('td-'+t);if(el)el.classList.add('active');
+  const lb=document.getElementById('langToggleBtn');
+  if(lb)lb.textContent=l==='bn'?'EN':'বাং';
+  setTimeout(()=>{
+    document.querySelectorAll('.fs-btn').forEach(b=>b.classList.remove('active'));
+    const fb=document.getElementById('fs-'+fs);if(fb)fb.classList.add('active');
+  },0);
+})();
+
+// ══════════ AUTH ══════════
+const DEF_PW={masud:'masud123',mosiar:'mosiar123'};
+const getPW=()=>JSON.parse(localStorage.getItem('ag_passwords')||JSON.stringify(DEF_PW));
+const savePW=p=>localStorage.setItem('ag_passwords',JSON.stringify(p));
+let currentUser=null;
+function selectUser(u){
+  document.getElementById('loginUser').value=u;
+  document.getElementById('chip-masud').classList.toggle('active',u==='masud');
+  document.getElementById('chip-mosiar').classList.toggle('active',u==='mosiar');
+}
+function doLogin(){
+  const user=document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass=document.getElementById('loginPass').value;
+  const pw=getPW();const err=document.getElementById('loginErr');
+  if(!pw[user]){err.textContent='\u09AC\u09CD\u09AF\u09AC\u09B9\u09BE\u09B0\u0995\u09BE\u09B0\u09C0 \u09AA\u09BE\u0993\u09AF\u09BC\u09BE \u09AF\u09BE\u09AF\u09BC\u09A8\u09BF / User not found';return;}
+  if(pw[user]!==pass){err.textContent='\u09AA\u09BE\u09B8\u0993\u09AF\u09BC\u09BE\u09B0\u09CD\u09A1 \u09AD\u09C1\u09B2 / Wrong password ❌';return;}
+  currentUser=user;localStorage.setItem('ag_session',user);
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appWrap').style.display='block';
+  document.getElementById('currentUserLabel').textContent=user==='masud'?'Masud':'Mosiar';
+  // Start Firebase listener — this will load data and render
+  if(!fbReady){listenFirebase();}
+  else{renderDashboard();}
+}
+function doLogout(){
+  currentUser=null;localStorage.removeItem('ag_session');
+  fbReady=false;
+  // Detach Firebase listener
+  try{FBDB.ref('krishi').off();}catch(e){}
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appWrap').style.display='none';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginErr').textContent='';
+}
+function changePassword(){
+  const user=document.getElementById('pw_user').value;
+  const oldP=document.getElementById('pw_old').value;
+  const newP=document.getElementById('pw_new').value;
+  const conf=document.getElementById('pw_confirm').value;
+  const pw=getPW();
+  if(pw[user]!==oldP){showToast('Current password wrong',false);return;}
+  if(!newP||newP.length<4){showToast('Min 4 characters',false);return;}
+  if(newP!==conf){showToast('Passwords do not match',false);return;}
+  pw[user]=newP;savePW(pw);
+  cfmSuccess('🔑','পাসওয়ার্ড আপডেট / Password Updated',
+    `<b>${user.charAt(0).toUpperCase()+user.slice(1)}</b> ✅`);
+  ['pw_old','pw_new','pw_confirm'].forEach(id=>document.getElementById(id).value='');
+}
+(function(){const s=localStorage.getItem('ag_session');if(s){document.getElementById('loginUser').value=s;selectUser(s);}})();
+
+// ══════════ FIREBASE CONFIG ══════════
+const firebaseConfig = {
+  apiKey: "AIzaSyC3RKVCZRvA0ZQI3nVAH9_vSdGbgg52uQs",
+  authDomain: "krishi-hisab-af8f4.firebaseapp.com",
+  databaseURL: "https://krishi-hisab-af8f4-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "krishi-hisab-af8f4",
+  storageBucket: "krishi-hisab-af8f4.firebasestorage.app",
+  messagingSenderId: "537067566980",
+  appId: "1:537067566980:web:f2929ddb095d7a62c5cfd1"
+};
+firebase.initializeApp(firebaseConfig);
+const FBDB = firebase.database();
+
+// ══════════ STATE ══════════
+const DB={
+  lands:[], crops:[], plans:[], expenses:[], incomes:[],
+  dues:[], labors:[], stocks:[], notes:[], capitals:[]
+};
+let CTR={l:1,c:1,pl:1,e:1,i:1,d:1,lb:1,st:1,nt:1,cp:1};
+let fbReady=false;
+
+// ── Firebase sync ──
+function setSyncStatus(s){
+  const el=document.getElementById('syncStatus');if(!el)return;
+  if(s==='syncing'){el.textContent='🔄 সংযোগ হচ্ছে...';el.className='syncing';}
+  else if(s==='synced'){el.textContent='☁️ Cloud Saved';el.className='synced';}
+  else{el.textContent='📴 Offline';el.className='offline';}
+}
+
+function listenFirebase(){
+  setSyncStatus('syncing');
+  FBDB.ref('krishi').on('value', snap=>{
+    const data=snap.val()||{};
+    const keys=['lands','crops','plans','expenses','incomes','dues','labors','stocks','notes','capitals'];
+    keys.forEach(k=>{DB[k]=data[k]?Object.values(data[k]):[];});
+    if(data.counters)Object.assign(CTR,data.counters);
+    fbReady=true;
+    setSyncStatus('synced');
+    // Re-render current page
+    const ap=document.querySelector('.page.active');
+    if(ap){const id=ap.id.replace('page-','');if(window['PG']&&PG[id])PG[id]();}
+    // Init sample data only if empty
+    if(!DB.lands.length)initSampleData();
+  }, err=>{
+    console.error('FB error:',err);
+    setSyncStatus('offline');
+    // Fallback to localStorage
+    const keys=['lands','crops','plans','expenses','incomes','dues','labors','stocks','notes','capitals'];
+    keys.forEach(k=>{DB[k]=JSON.parse(localStorage.getItem('ag_'+k)||'[]');});
+    CTR=JSON.parse(localStorage.getItem('ag_counters')||'{"l":1,"c":1,"pl":1,"e":1,"i":1,"d":1,"lb":1,"st":1,"nt":1,"cp":1}');
+    fbReady=true;
+    if(!DB.lands.length)initSampleData();
+  });
+  // Online/offline detection
+  FBDB.ref('.info/connected').on('value',snap=>{
+    if(!snap.val())setSyncStatus('offline');
+  });
+}
+
+let saveTimer=null;
+function save(){
+  // Always backup to localStorage
+  const keys=['lands','crops','plans','expenses','incomes','dues','labors','stocks','notes','capitals'];
+  keys.forEach(k=>localStorage.setItem('ag_'+k,JSON.stringify(DB[k])));
+  localStorage.setItem('ag_counters',JSON.stringify(CTR));
+  // Debounced Firebase save
+  clearTimeout(saveTimer);
+  setSyncStatus('syncing');
+  saveTimer=setTimeout(()=>{
+    const payload={counters:CTR};
+    const dbkeys=['lands','crops','plans','expenses','incomes','dues','labors','stocks','notes','capitals'];
+    dbkeys.forEach(k=>{
+      payload[k]={};
+      DB[k].forEach((item,i)=>{payload[k][item.id||i]=item;});
+    });
+    FBDB.ref('krishi').set(payload)
+      .then(()=>setSyncStatus('synced'))
+      .catch(()=>setSyncStatus('offline'));
+  },800);
+}
+
+function nid(p,k){const id=`${p}${String(CTR[k]).padStart(3,'0')}`;CTR[k]++;return id;}
+
+// ══════════ HELPERS ══════════
+const getLN=id=>{const l=DB.lands.find(x=>x.id===id);return l?l.name:id;};
+const getCN=id=>{const c=DB.crops.find(x=>x.id===id);return c?c.name:id;};
+const fmt=n=>'৳ '+Number(n||0).toLocaleString();
+const fmtD=d=>{if(!d)return'—';try{return new Date(d).toLocaleDateString();}catch(e){return d;}};
+const tod=()=>new Date().toISOString().split('T')[0];
+const catL={Seed:'বীজ/Seed',Fertilizer:'সার/Fertilizer',Pesticide:'কীটনাশক',Labor:'শ্রম/Labor',Irrigation:'সেচ',
+  'Tools/Equipment':'যন্ত্রপাতি','Trellis/Scaffold':'মাচা','Land Rent':'জমির খরচ',Other:'অন্যান্য'};
+const dueL={worker:'শ্রমিক',seller:'বিক্রেতা',buyer:'ক্রেতা',other:'অন্যান্য'};
+const seasL={Summer:'গ্রীষ্মকালীন',Winter:'শীতকালীন',Rainy:'বর্ষাকালীন','Year-round':'সারাবছর'};
+function showToast(msg,ok=true){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.style.background=ok?'var(--accent)':'var(--red)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ══════════ NAV ══════════
+const PG={
+  dashboard:renderDashboard,land:renderLands,crop:renderCrops,
+  plan:()=>{popPF();renderPlans();},labor:()=>{popLF();renderLabors();},
+  stock:renderStocks,expense:()=>{popEF();renderExpenses();},
+  income:()=>{popIF();renderIncomes();},due:renderDues,
+  profit:renderProfit,expReport:renderExpReport,yearCompare:renderYearCompare,
+  notes:()=>{renderNotes();renderCapital();},settings:()=>{}
+};
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(item=>{
+    if(item.getAttribute('onclick')===`showPage('${id}')`)item.classList.add('active');
+  });
+  if(PG[id])PG[id]();
+}
+
+// ══════════ LAND (inline edit) ══════════
+function addLand(){
+  const name=document.getElementById('l_name').value.trim();
+  if(!name){showToast('Enter land name',false);return;}
+  DB.lands.push({id:nid('L','l'),name,loc:document.getElementById('l_loc').value.trim(),
+    size:parseFloat(document.getElementById('l_size').value)||0,
+    owner:document.getElementById('l_owner').value,
+    rent:parseFloat(document.getElementById('l_rent').value)||0});
+  save();renderLands();
+  cfmSuccess('🗺️',
+    document.documentElement.getAttribute('data-lang')==='en'?'Land Added!':'জমি যোগ হয়েছে!',
+    `<b>${name}</b> &mdash; ${document.getElementById('l_size').value||0} bigha`);
+  ['l_name','l_loc','l_size','l_rent'].forEach(id=>document.getElementById(id).value='');
+}
+function delLand(id){if(!confirm('Delete this land?'))return;DB.lands=DB.lands.filter(x=>x.id!==id);save();renderLands();}
+function renderLands(editId=null){
+  const tb=document.getElementById('landTB');
+  if(!DB.lands.length){tb.innerHTML='<tr><td colspan="7" class="empty"><div class="ei">🗺️</div>No land added</td></tr>';return;}
+  tb.innerHTML=DB.lands.map(l=>{
+    if(editId===l.id)return`<tr style="background:var(--bg)">
+      <td><span class="badge bg">${l.id}</span></td>
+      <td><input class="edit-input" id="el_name" value="${l.name}" style="width:100px"></td>
+      <td><input class="edit-input" id="el_loc"  value="${l.loc||''}" style="width:90px"></td>
+      <td><input class="edit-input" id="el_size" type="number" value="${l.size}" style="width:60px"></td>
+      <td><select class="edit-input" id="el_own"><option value="Lease" ${l.owner==='Lease'?'selected':''}>Lease</option><option value="Own" ${l.owner==='Own'?'selected':''}>Own</option></select></td>
+      <td><input class="edit-input" id="el_rent" type="number" value="${l.rent}" style="width:85px"></td>
+      <td><button class="btn btn-p btn-sm" onclick="saveLandE('${l.id}')">✅</button> <button class="btn btn-d btn-sm" onclick="renderLands()">✕</button></td>
+    </tr>`;
+    return`<tr>
+      <td><span class="badge bg">${l.id}</span></td>
+      <td><strong>${l.name}</strong></td><td>${l.loc||'—'}</td>
+      <td>${l.size} <span class="bn">বিঘা</span><span class="en">bigha</span></td>
+      <td><span class="badge ${l.owner==='Lease'?'by':'bb'}">${l.owner==='Lease'?'Lease':'Own'}</span></td>
+      <td>${fmt(l.rent)}</td>
+      <td><button class="btn btn-e btn-sm" onclick="renderLands('${l.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delLand('${l.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function saveLandE(id){
+  const l=DB.lands.find(x=>x.id===id);if(!l)return;
+  l.name=document.getElementById('el_name').value.trim()||l.name;
+  l.loc=document.getElementById('el_loc').value.trim();
+  l.size=parseFloat(document.getElementById('el_size').value)||0;
+  l.owner=document.getElementById('el_own').value;
+  l.rent=parseFloat(document.getElementById('el_rent').value)||0;
+  save();renderLands();cfmSuccess('✅','জমির তথ্য আপডেট / Land Updated',`<b>${l.name}</b>`);
+}
+
+// ══════════ CROP (inline edit) ══════════
+function addCrop(){
+  const name=document.getElementById('c_name').value.trim();
+  if(!name){showToast('Enter crop name',false);return;}
+  DB.crops.push({id:nid('C','c'),name,season:document.getElementById('c_season').value});
+  save();renderCrops();
+  cfmSuccess('🌱',
+    document.documentElement.getAttribute('data-lang')==='en'?'Crop Added!':'ফসল যোগ হয়েছে!',
+    `<b>${name}</b> &mdash; ${document.getElementById('c_season').value}`);
+  document.getElementById('c_name').value='';
+}
+function delCrop(id){if(!confirm('Delete?'))return;DB.crops=DB.crops.filter(x=>x.id!==id);save();renderCrops();}
+function renderCrops(editId=null){
+  const tb=document.getElementById('cropTB');
+  if(!DB.crops.length){tb.innerHTML='<tr><td colspan="4" class="empty"><div class="ei">🌱</div>No crop added</td></tr>';return;}
+  tb.innerHTML=DB.crops.map(c=>{
+    if(editId===c.id)return`<tr style="background:var(--bg)">
+      <td><span class="badge bg">${c.id}</span></td>
+      <td><input class="edit-input" id="ec_name" value="${c.name}" style="width:110px"></td>
+      <td><select class="edit-input" id="ec_sea">
+        <option value="Summer" ${c.season==='Summer'?'selected':''}>গ্রীষ্মকালীন / Summer</option>
+        <option value="Winter" ${c.season==='Winter'?'selected':''}>শীতকালীন / Winter</option>
+        <option value="Rainy"  ${c.season==='Rainy'?'selected':''}> বর্ষাকালীন / Rainy</option>
+        <option value="Year-round" ${c.season==='Year-round'?'selected':''}>সারাবছর / Year-round</option>
+      </select></td>
+      <td><button class="btn btn-p btn-sm" onclick="saveCropE('${c.id}')">✅</button> <button class="btn btn-d btn-sm" onclick="renderCrops()">✕</button></td>
+    </tr>`;
+    return`<tr>
+      <td><span class="badge bg">${c.id}</span></td>
+      <td><strong>${c.name}</strong></td>
+      <td><span class="badge by">${seasL[c.season]||c.season}</span></td>
+      <td><button class="btn btn-e btn-sm" onclick="renderCrops('${c.id}')">✏️</button> <button class="btn btn-d btn-sm" onclick="delCrop('${c.id}')">🗑️</button></td>
+    </tr>`;
+  }).join('');
+}
+function saveCropE(id){
+  const c=DB.crops.find(x=>x.id===id);if(!c)return;
+  c.name=document.getElementById('ec_name').value.trim()||c.name;
+  c.season=document.getElementById('ec_sea').value;
+  save();renderCrops();cfmSuccess('✅','ফসলের তথ্য আপডেট / Crop Updated',`<b>${c.name}</b>`);
+}
+
+// ══════════ PLAN ══════════
+function popPF(){
+  document.getElementById('pl_land').innerHTML=DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  document.getElementById('pl_crop').innerHTML=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(!document.getElementById('pl_year').value)document.getElementById('pl_year').value=new Date().getFullYear();
+}
+function addPlan(){
+  const land=document.getElementById('pl_land').value,crop=document.getElementById('pl_crop').value;
+  if(!land||!crop){showToast('Select land & crop',false);return;}
+  DB.plans.push({id:nid('PL','pl'),land,crop,
+    year:parseInt(document.getElementById('pl_year').value)||new Date().getFullYear(),
+    start:document.getElementById('pl_start').value,
+    harvest:document.getElementById('pl_harvest').value,
+    note:document.getElementById('pl_note').value.trim()});
+  save();renderPlans();
+  cfmSuccess('📋',
+    document.documentElement.getAttribute('data-lang')==='en'?'Plan Added!':'পরিকল্পনা যোগ হয়েছে!',
+    `${getLN(land)} &rarr; ${getCN(crop)} &mdash; ${document.getElementById('pl_year').value}`);
+  document.getElementById('pl_note').value='';
+}
+function delPlan(id){if(!confirm('Delete?'))return;DB.plans=DB.plans.filter(x=>x.id!==id);save();renderPlans();}
+function renderPlans(){
+  const tb=document.getElementById('planTB');
+  tb.innerHTML=DB.plans.length?DB.plans.map(p=>`<tr>
+    <td>${getLN(p.land)}</td><td>${getCN(p.crop)}</td><td>${p.year||'—'}</td>
+    <td>${fmtD(p.start)}</td><td>${fmtD(p.harvest)}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.note||''}">${p.note||'—'}</td>
+    <td><button class="btn btn-d btn-sm" onclick="delPlan('${p.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="7" class="empty"><div class="ei">📋</div>No plans</td></tr>';
+}
+
+// ══════════ LABOR ══════════
+function popLF(){
+  document.getElementById('lb_land').innerHTML=DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  document.getElementById('lb_crop').innerHTML=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(!document.getElementById('lb_date').value)document.getElementById('lb_date').value=tod();
+}
+function addLabor(){
+  const name=document.getElementById('lb_name').value.trim();
+  const rate=parseFloat(document.getElementById('lb_rate').value)||0;
+  const days=parseFloat(document.getElementById('lb_days').value)||1;
+  if(!name||!rate){showToast('Enter name & wage',false);return;}
+  const ps=document.getElementById('lb_paid').value;
+  DB.labors.push({id:nid('LB','lb'),name,date:document.getElementById('lb_date').value,
+    land:document.getElementById('lb_land').value,crop:document.getElementById('lb_crop').value,
+    type:document.getElementById('lb_type').value,days,rate,total:days*rate,
+    paid_status:ps,paid_amount:ps==='paid'?days*rate:0});
+  save();renderLabors();
+  cfmSuccess('👷',
+    document.documentElement.getAttribute('data-lang')==='en'?'Attendance Added!':'হাজিরা যোগ হয়েছে!',
+    `<b>${name}</b> &mdash; ${days} <span class="bn">দিন</span><span class="en">days</span> &mdash; ৳${(days*rate).toLocaleString()}`);
+  document.getElementById('lb_name').value='';
+}
+function delLabor(id){DB.labors=DB.labors.filter(x=>x.id!==id);save();renderLabors();}
+function renderLabors(){
+  const sm={};
+  DB.labors.forEach(lb=>{if(!sm[lb.name])sm[lb.name]={days:0,total:0,paid:0};sm[lb.name].days+=lb.days;sm[lb.name].total+=lb.total;sm[lb.name].paid+=lb.paid_amount||0;});
+  document.getElementById('laborSum').innerHTML=Object.keys(sm).length?Object.entries(sm).map(([n,s])=>`<tr><td><strong>${n}</strong></td><td>${s.days}</td><td>${fmt(s.total)}</td><td class="pp">${fmt(s.paid)}</td><td class="${s.total-s.paid>0?'pn':'pp'}">${fmt(s.total-s.paid)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No data</td></tr>';
+  const stM={paid:'<span class="badge bg">Paid</span>',unpaid:'<span class="badge br">Due</span>',partial:'<span class="badge by">Partial</span>'};
+  document.getElementById('laborTB').innerHTML=DB.labors.length?DB.labors.slice().reverse().map(lb=>`<tr><td>${fmtD(lb.date)}</td><td><strong>${lb.name}</strong></td><td>${getLN(lb.land)}</td><td>${lb.type}</td><td>${lb.days}</td><td>${fmt(lb.total)}</td><td>${stM[lb.paid_status]||''}</td><td><button class="btn btn-d btn-sm" onclick="delLabor('${lb.id}')">🗑️</button></td></tr>`).join(''):'<tr><td colspan="8" class="empty"><div class="ei">👷</div>No entries</td></tr>';
+}
+
+// ══════════ STOCK ══════════
+function addStock(){
+  const name=document.getElementById('st_name').value.trim();if(!name){showToast('Enter item name',false);return;}
+  DB.stocks.push({id:nid('ST','st'),name,type:document.getElementById('st_type').value,
+    bought:parseFloat(document.getElementById('st_bought').value)||0,
+    used:parseFloat(document.getElementById('st_used').value)||0,
+    unit:document.getElementById('st_unit').value,
+    price:parseFloat(document.getElementById('st_price').value)||0,
+    min:parseFloat(document.getElementById('st_min').value)||0});
+  save();renderStocks();
+  cfmSuccess('📦',
+    document.documentElement.getAttribute('data-lang')==='en'?'Stock Added!':'মজুদ যোগ হয়েছে!',
+    `<b>${name}</b> &mdash; ${document.getElementById('st_bought').value||0} ${document.getElementById('st_unit').value}`);
+  ['st_name','st_bought','st_used','st_unit','st_price','st_min'].forEach(id=>document.getElementById(id).value='');
+}
+function delStock(id){DB.stocks=DB.stocks.filter(x=>x.id!==id);save();renderStocks();}
+function renderStocks(){
+  document.getElementById('stockTB').innerHTML=DB.stocks.length?DB.stocks.map(s=>{
+    const rem=s.bought-s.used,pct=s.bought>0?Math.min(100,rem/s.bought*100):0,low=rem<=s.min&&s.min>0;
+    return`<tr><td><strong>${s.name}</strong>${low?'<span class="badge br" style="margin-left:5px">Low!</span>':''}</td>
+    <td><span class="badge by">${s.type}</span></td><td>${s.bought} ${s.unit}</td><td>${s.used} ${s.unit}</td>
+    <td style="color:${low?'var(--red)':'var(--accent)'}">
+      ${rem} ${s.unit}
+      <div style="display:inline-block;width:60px;height:7px;background:var(--border);border-radius:4px;margin-left:5px;vertical-align:middle;overflow:hidden"><div style="height:100%;width:${pct}%;background:${low?'var(--red)':'var(--accent2)'};border-radius:4px"></div></div>
+    </td>
+    <td>${fmt(s.price)}</td><td>${fmt(rem*s.price)}</td>
+    <td><button class="btn btn-d btn-sm" onclick="delStock('${s.id}')">🗑️</button></td></tr>`;
+  }).join(''):'<tr><td colspan="8" class="empty"><div class="ei">📦</div>No stock</td></tr>';
+}
+
+// ══════════ EXPENSE ══════════
+function popEF(){
+  const lo=DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  const co=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('e_land').innerHTML=lo;
+  document.getElementById('ef_land').innerHTML='<option value="">All Lands</option>'+lo;
+  document.getElementById('e_crop').innerHTML=co;
+  document.getElementById('ef_crop').innerHTML='<option value="">All Crops</option>'+co;
+  if(!document.getElementById('e_date').value)document.getElementById('e_date').value=tod();
+  // Populate year filter
+  const yrs=[...new Set(DB.expenses.map(e=>e.date?e.date.substring(0,4):null).filter(Boolean))].sort().reverse();
+  const ey=document.getElementById('ef_year');
+  if(ey){const cur=ey.value;ey.innerHTML='<option value="">All Years</option>'+yrs.map(y=>`<option value="${y}">${y}</option>`).join('');if(cur)ey.value=cur;}
+}
+function addExpense(){
+  const amount=parseFloat(document.getElementById('e_amount').value)||0;
+  if(!document.getElementById('e_date').value||!amount){showToast('Enter date & amount',false);return;}
+  DB.expenses.push({id:nid('E','e'),date:document.getElementById('e_date').value,
+    land:document.getElementById('e_land').value,crop:document.getElementById('e_crop').value,
+    cat:document.getElementById('e_cat').value,amount,desc:document.getElementById('e_desc').value.trim()});
+  save();renderExpenses();
+  cfmSuccess('💸',
+    document.documentElement.getAttribute('data-lang')==='en'?'Expense Saved!':'খরচ সেভ হয়েছে!',
+    `৳<b>${amount.toLocaleString()}</b> &mdash; ${document.getElementById('e_desc').value||document.getElementById('e_cat').value}<br><span style="font-size:0.78rem;color:var(--tm)">${getLN(document.getElementById('e_land').value)} | ${getCN(document.getElementById('e_crop').value)}</span>`);
+  document.getElementById('e_amount').value='';document.getElementById('e_desc').value='';
+}
+function delExpense(id){DB.expenses=DB.expenses.filter(x=>x.id!==id);save();renderExpenses();}
+function renderExpenses(){
+  const fl=document.getElementById('ef_land')?.value||'',fc=document.getElementById('ef_crop')?.value||'';
+  const fy=document.getElementById('ef_year')?.value||'',fm=document.getElementById('ef_month')?.value||'';
+  let data=DB.expenses;
+  if(fl)data=data.filter(x=>x.land===fl);
+  if(fc)data=data.filter(x=>x.crop===fc);
+  if(fy)data=data.filter(x=>x.date&&x.date.startsWith(fy));
+  if(fm)data=data.filter(x=>x.date&&x.date.substring(5,7)===fm);
+  document.getElementById('expTB').innerHTML=data.length?data.slice().reverse().map(e=>`<tr>
+    <td>${fmtD(e.date)}</td><td>${getLN(e.land)}</td><td>${getCN(e.crop)}</td>
+    <td><span class="badge by">${catL[e.cat]||e.cat}</span></td>
+    <td>${e.desc||'—'}</td><td><strong>${fmt(e.amount)}</strong></td>
+    <td><button class="btn btn-d btn-sm" onclick="delExpense('${e.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="7" class="empty"><div class="ei">💸</div>No expenses</td></tr>';
+}
+
+// ══════════ INCOME ══════════
+function popIF(){
+  const lo=DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');
+  const co=DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('i_land').innerHTML=lo;document.getElementById('if_land').innerHTML='<option value="">All</option>'+lo;
+  document.getElementById('i_crop').innerHTML=co;document.getElementById('if_crop').innerHTML='<option value="">All</option>'+co;
+  if(!document.getElementById('i_date').value)document.getElementById('i_date').value=tod();
+  // Populate year filter
+  const yrs=[...new Set(DB.incomes.map(i=>i.date?i.date.substring(0,4):null).filter(Boolean))].sort().reverse();
+  const iy=document.getElementById('if_year');
+  if(iy){const cur=iy.value;iy.innerHTML='<option value="">All Years</option>'+yrs.map(y=>`<option value="${y}">${y}</option>`).join('');if(cur)iy.value=cur;}
+}
+function addIncome(){
+  const total=parseFloat(document.getElementById('i_total').value)||0;
+  if(!document.getElementById('i_date').value||!total){showToast('Enter date & total',false);return;}
+  DB.incomes.push({id:nid('I','i'),date:document.getElementById('i_date').value,
+    land:document.getElementById('i_land').value,crop:document.getElementById('i_crop').value,
+    product:document.getElementById('i_product').value.trim(),qty:document.getElementById('i_qty').value.trim(),
+    price:parseFloat(document.getElementById('i_price').value)||0,total});
+  save();renderIncomes();
+  cfmSuccess('💰',
+    document.documentElement.getAttribute('data-lang')==='en'?'Income Saved!':'আয় সেভ হয়েছে!',
+    `৳<b>${total.toLocaleString()}</b> &mdash; ${document.getElementById('i_product').value||getCN(document.getElementById('i_crop').value)}<br><span style="font-size:0.78rem;color:var(--tm)">${getLN(document.getElementById('i_land').value)}</span>`);
+  ['i_product','i_qty','i_price','i_total'].forEach(id=>document.getElementById(id).value='');
+}
+function delIncome(id){DB.incomes=DB.incomes.filter(x=>x.id!==id);save();renderIncomes();}
+function renderIncomes(){
+  const fl=document.getElementById('if_land')?.value||'',fc=document.getElementById('if_crop')?.value||'';
+  const fy=document.getElementById('if_year')?.value||'',fm=document.getElementById('if_month')?.value||'';
+  let data=DB.incomes;
+  if(fl)data=data.filter(x=>x.land===fl);
+  if(fc)data=data.filter(x=>x.crop===fc);
+  if(fy)data=data.filter(x=>x.date&&x.date.startsWith(fy));
+  if(fm)data=data.filter(x=>x.date&&x.date.substring(5,7)===fm);
+  document.getElementById('incTB').innerHTML=data.length?data.slice().reverse().map(i=>`<tr>
+    <td>${fmtD(i.date)}</td><td>${getLN(i.land)}</td><td>${getCN(i.crop)}</td>
+    <td>${i.product||'—'}</td><td>${i.qty||'—'}</td><td>${i.price?fmt(i.price):'—'}</td>
+    <td><strong style="color:var(--accent)">${fmt(i.total)}</strong></td>
+    <td><button class="btn btn-d btn-sm" onclick="delIncome('${i.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="8" class="empty"><div class="ei">💰</div>No income</td></tr>';
+}
+
+// ══════════ DUE ══════════
+function addDue(){
+  const name=document.getElementById('d_name').value.trim();
+  const amount=parseFloat(document.getElementById('d_amount').value)||0;
+  if(!name||!amount){showToast('Enter name & amount',false);return;}
+  DB.dues.push({id:nid('D','d'),name,type:document.getElementById('d_type').value,
+    date:document.getElementById('d_date').value||tod(),amount,
+    desc:document.getElementById('d_desc').value.trim(),paid:0,payments:[]});
+  save();renderDues();
+  cfmSuccess('🔴',
+    document.documentElement.getAttribute('data-lang')==='en'?'Due Added!':'বাকি যোগ হয়েছে!',
+    `<b>${name}</b> &mdash; ৳${amount.toLocaleString()}<br><span style="font-size:0.78rem;color:var(--tm)">${document.getElementById('d_desc').value||''}</span>`);
+  ['d_name','d_amount','d_desc'].forEach(id=>document.getElementById(id).value='');
+}
+function delDue(id){if(!confirm('Delete?'))return;DB.dues=DB.dues.filter(x=>x.id!==id);save();renderDues();}
+let payDueId=null;
+function openPayM(id){payDueId=id;document.getElementById('payModal').style.display='flex';document.getElementById('pay_amt').value='';document.getElementById('pay_dt').value=tod();}
+function closePayM(){document.getElementById('payModal').style.display='none';payDueId=null;}
+function confirmPay(){
+  const amount=parseFloat(document.getElementById('pay_amt').value)||0;if(!amount){showToast('Enter amount',false);return;}
+  const due=DB.dues.find(x=>x.id===payDueId);if(!due)return;
+  due.paid=(due.paid||0)+amount;due.payments=due.payments||[];due.payments.push({amount,date:document.getElementById('pay_dt').value||tod()});
+  save();renderDues();closePayM();
+  cfmSuccess('✅',
+    document.documentElement.getAttribute('data-lang')==='en'?'Payment Confirmed!':'শোধ নিশ্চিত হয়েছে!',
+    `<b>${due.name}</b> &mdash; ৳${amount.toLocaleString()} <span class="bn">শোধ হয়েছে</span><span class="en">paid</span>`);
+}
+function renderDues(){
+  document.getElementById('dueTB').innerHTML=DB.dues.length?DB.dues.map(d=>{
+    const rem=d.amount-d.paid;
+    const sc=rem<=0?'ds-paid':d.paid>0?'ds-partial':'ds-unpaid';
+    const st=rem<=0?'Paid':d.paid>0?'Partial':'Due';
+    return`<tr>
+      <td><strong>${d.name}</strong><br><small style="color:var(--tm)">${d.desc||''}</small></td>
+      <td><span class="badge bb">${dueL[d.type]||d.type}</span></td>
+      <td>${fmtD(d.date)}</td><td>${fmt(d.amount)}</td>
+      <td class="pp">${fmt(d.paid)}</td><td class="${rem>0?'pn':'pp'}">${fmt(rem)}</td>
+      <td class="${sc}">${st}</td>
+      <td>${rem>0?`<button class="btn btn-i btn-sm" onclick="openPayM('${d.id}')"><span class="bn">শোধ</span><span class="en">Pay</span></button>`:'✅'}</td>
+      <td><button class="btn btn-d btn-sm" onclick="delDue('${d.id}')">🗑️</button></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="9" class="empty"><div class="ei">🔴</div>No dues ✅</td></tr>';
+}
+const dueCSS=document.createElement('style');
+dueCSS.textContent='.ds-paid{color:var(--accent);font-weight:700}.ds-partial{color:#f4a261;font-weight:700}.ds-unpaid{color:var(--red);font-weight:700}';
+document.head.appendChild(dueCSS);
+
+// ══════════ PROFIT ══════════
+function renderProfit(){
+  const tE=DB.expenses.reduce((a,e)=>a+e.amount,0),tI=DB.incomes.reduce((a,i)=>a+i.total,0),p=tI-tE;
+  document.getElementById('ps-e').textContent=fmt(tE);
+  document.getElementById('ps-i').textContent=fmt(tI);
+  const pe=document.getElementById('ps-p');pe.textContent=fmt(p);pe.style.color=p>=0?'var(--accentT)':'#ffb3b3';
+  const g={};
+  DB.expenses.forEach(e=>{const k=e.land+'|'+e.crop;g[k]=g[k]||{land:e.land,crop:e.crop,exp:0,inc:0};g[k].exp+=e.amount;});
+  DB.incomes.forEach(i=>{const k=i.land+'|'+i.crop;g[k]=g[k]||{land:i.land,crop:i.crop,exp:0,inc:0};g[k].inc+=i.total;});
+  const rows=Object.values(g);
+  document.getElementById('profTB').innerHTML=rows.length?rows.map(r=>{const pr=r.inc-r.exp;return`<tr><td>${getLN(r.land)}</td><td>${getCN(r.crop)}</td><td style="color:var(--red)">${fmt(r.exp)}</td><td style="color:var(--accent)">${fmt(r.inc)}</td><td class="${pr>=0?'pp':'pn'}">${pr>=0?'▲':'▼'} ${fmt(Math.abs(pr))}</td></tr>`;}).join(''):'<tr><td colspan="5" class="empty">No data</td></tr>';
+  document.getElementById('pcGrid').innerHTML=`
+    <div class="pc m"><h4>🧑‍🌾 Masud</h4><div class="sp">40%</div><div class="amt">${fmt(p*0.4)}</div></div>
+    <div class="pc mo"><h4>🧑‍🌾 Mosiar</h4><div class="sp">60%</div><div class="amt" style="color:var(--blue)">${fmt(p*0.6)}</div></div>`;
+}
+
+// ══════════ EXP REPORT ══════════
+function renderExpReport(){
+  const ct={};DB.expenses.forEach(e=>{ct[e.cat]=(ct[e.cat]||0)+e.amount;});
+  const mx=Math.max(...Object.values(ct),1);
+  document.getElementById('catChart').innerHTML=Object.keys(ct).length?Object.entries(ct).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="cb"><div class="cl">${catL[c]||c}</div><div class="cb-tr"><div class="cb-fi" style="width:${(v/mx*100).toFixed(1)}%"></div></div><div class="cv">${fmt(v)}</div></div>`).join(''):'<div class="empty">No data</div>';
+  const lt={};DB.expenses.forEach(e=>{lt[e.land]=(lt[e.land]||0)+e.amount;});
+  document.getElementById('landExpTB').innerHTML=Object.keys(lt).length?Object.entries(lt).map(([l,v])=>`<tr><td>${getLN(l)}</td><td><strong>${fmt(v)}</strong></td></tr>`).join(''):'<tr><td colspan="2" class="empty">No data</td></tr>';
+}
+
+// ══════════ YEAR COMPARE ══════════
+function getYr(d){try{return new Date(d).getFullYear();}catch(e){return null;}}
+function renderYearCompare(){
+  const yrs=new Set();
+  DB.plans.forEach(p=>{if(p.year)yrs.add(p.year);});
+  DB.expenses.forEach(e=>{const y=getYr(e.date);if(y)yrs.add(y);});
+  DB.incomes.forEach(i=>{const y=getYr(i.date);if(y)yrs.add(y);});
+  const sy=[...yrs].sort();
+  document.getElementById('yrSum').innerHTML=sy.length?sy.map(yr=>{
+    const exp=DB.expenses.filter(e=>getYr(e.date)===yr).reduce((a,e)=>a+e.amount,0);
+    const inc=DB.incomes.filter(i=>getYr(i.date)===yr).reduce((a,i)=>a+i.total,0);
+    const p=inc-exp;
+    return`<tr><td><strong>${yr}</strong></td><td style="color:var(--red)">${fmt(exp)}</td><td style="color:var(--accent)">${fmt(inc)}</td><td class="${p>=0?'pp':'pn'}">${p>=0?'▲':'▼'} ${fmt(Math.abs(p))}</td></tr>`;
+  }).join(''):'<tr><td colspan="4" class="empty">No data</td></tr>';
+  const cm={};
+  DB.plans.forEach(p=>{const k=p.crop+'|'+p.land+'|'+p.year;cm[k]=cm[k]||{crop:p.crop,land:p.land,year:p.year,exp:0,inc:0,note:p.note||''};});
+  DB.expenses.forEach(e=>{const yr=getYr(e.date);const k=e.crop+'|'+e.land+'|'+yr;cm[k]=cm[k]||{crop:e.crop,land:e.land,year:yr,exp:0,inc:0,note:''};cm[k].exp+=e.amount;});
+  DB.incomes.forEach(i=>{const yr=getYr(i.date);const k=i.crop+'|'+i.land+'|'+yr;cm[k]=cm[k]||{crop:i.crop,land:i.land,year:yr,exp:0,inc:0,note:''};cm[k].inc+=i.total;});
+  const rows=Object.values(cm).sort((a,b)=>b.year-a.year);
+  document.getElementById('yrCrop').innerHTML=rows.length?rows.map(r=>{const p=r.inc-r.exp;return`<tr><td>${getCN(r.crop)}</td><td><strong>${r.year}</strong></td><td>${getLN(r.land)}</td><td style="color:var(--red)">${fmt(r.exp)}</td><td style="color:var(--accent)">${fmt(r.inc)}</td><td class="${p>=0?'pp':'pn'}">${p>=0?'▲':'▼'} ${fmt(Math.abs(p))}</td><td style="font-size:0.78rem;color:var(--tm)">${r.note||'—'}</td></tr>`;}).join(''):'<tr><td colspan="7" class="empty">No data</td></tr>';
+}
+
+// ══════════ DASHBOARD ══════════
+function renderDashboard(){
+  const tE=DB.expenses.reduce((a,e)=>a+e.amount,0),tI=DB.incomes.reduce((a,i)=>a+i.total,0),p=tI-tE;
+  const tD=DB.dues.reduce((a,d)=>a+(d.amount-d.paid),0);
+  document.getElementById('dashStats').innerHTML=`
+    <div class="stat-card c-green" data-icon="🗺️"><label><span class="bn">মোট জমি</span><span class="en">Total Land</span></label><div class="val">${DB.lands.length}</div><div class="sub">${DB.lands.reduce((a,l)=>a+l.size,0)} bigha</div></div>
+    <div class="stat-card c-gold" data-icon="🌱"><label><span class="bn">ফসল পরিকল্পনা</span><span class="en">Crop Plans</span></label><div class="val">${DB.plans.length}</div><div class="sub">${DB.crops.length} types</div></div>
+    <div class="stat-card c-red" data-icon="💸"><label><span class="bn">মোট খরচ</span><span class="en">Total Expense</span></label><div class="val" style="font-size:1.1rem">${fmt(tE)}</div><div class="sub">${DB.expenses.length} entries</div></div>
+    <div class="stat-card c-earth" data-icon="💰"><label><span class="bn">মোট আয়</span><span class="en">Total Income</span></label><div class="val" style="font-size:1.1rem">${fmt(tI)}</div><div class="sub">${DB.incomes.length} entries</div></div>
+    <div class="stat-card c-blue" data-icon="📈"><label><span class="bn">নিট লাভ/ক্ষতি</span><span class="en">Net Profit/Loss</span></label><div class="val" style="font-size:1rem;color:${p>=0?'var(--accent)':'var(--red)'}">${fmt(p)}</div><div class="sub">${p>=0?'✅ Profit':'⚠️ Loss'}</div></div>
+    <div class="stat-card c-purple" data-icon="🔴"><label><span class="bn">মোট বাকি</span><span class="en">Total Due</span></label><div class="val" style="font-size:1rem;color:${tD>0?'var(--red)':'var(--accent)'}">${fmt(tD)}</div><div class="sub">${DB.dues.filter(d=>d.amount-d.paid>0).length} pending</div></div>`;
+  document.getElementById('db-plan').innerHTML=DB.plans.length?DB.plans.map(pl=>{
+    const pE=DB.expenses.filter(e=>e.land===pl.land&&e.crop===pl.crop).reduce((a,e)=>a+e.amount,0);
+    const pI=DB.incomes.filter(i=>i.land===pl.land&&i.crop===pl.crop).reduce((a,i)=>a+i.total,0);
+    const pr=pI-pE;
+    return`<tr><td>${getLN(pl.land)}</td><td>${getCN(pl.crop)}</td><td>${fmtD(pl.start)}</td><td>${fmtD(pl.harvest)}</td><td>${fmt(pE)}</td><td>${fmt(pI)}</td><td class="${pr>=0?'pp':'pn'}">${pr>=0?'+':''}${fmt(pr)}</td></tr>`;
+  }).join(''):'<tr><td colspan="7" class="empty"><div class="ei">📋</div>Add plans first</td></tr>';
+  const ad=DB.dues.filter(d=>d.amount-d.paid>0);
+  document.getElementById('db-due').innerHTML=ad.length?ad.slice(0,5).map(d=>`<tr><td><strong>${d.name}</strong></td><td><span class="badge bb">${dueL[d.type]||d.type}</span></td><td>${fmt(d.amount)}</td><td class="pp">${fmt(d.paid)}</td><td class="pn">${fmt(d.amount-d.paid)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No dues ✅</td></tr>';
+}
+
+// ══════════ QUICK MODAL ══════════
+function bLO(){return DB.lands.map(l=>`<option value="${l.id}">${l.name}</option>`).join('');}
+function bCO(){return DB.crops.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');}
+function openQModal(type){
+  document.getElementById('qModal').style.display='flex';
+  const t=document.getElementById('qm-title'),b=document.getElementById('qm-body'),a=document.getElementById('qm-ac');
+  if(type==='expense'){
+    t.textContent='⚡ Today\'s Expense / আজকের খরচ';
+    b.innerHTML=`<div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>Land</label><select id="qe_l">${bLO()}</select></div>
+      <div class="fgrp"><label>Crop</label><select id="qe_c">${bCO()}</select></div>
+      <div class="fgrp"><label>Category</label><select id="qe_cat"><option value="Seed">Seed</option><option value="Fertilizer">Fertilizer</option><option value="Pesticide">Pesticide</option><option value="Labor">Labor</option><option value="Other">Other</option></select></div>
+      <div class="fgrp"><label>Amount ৳</label><input id="qe_amt" type="number" placeholder="0"></div>
+      <div class="fgrp full"><label>Note</label><input id="qe_desc" placeholder="optional"></div>
+    </div>`;
+    a.innerHTML=`<button class="btn btn-p" onclick="qExp()"><span class="bn">খরচ যোগ করুন</span><span class="en">Add Expense</span></button>`;
+  }else if(type==='income'){
+    t.textContent='⚡ Today\'s Income / আজকের আয়';
+    b.innerHTML=`<div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>Land</label><select id="qi_l">${bLO()}</select></div>
+      <div class="fgrp"><label>Crop</label><select id="qi_c">${bCO()}</select></div>
+      <div class="fgrp"><label>Product</label><input id="qi_pr" placeholder="e.g. Morich"></div>
+      <div class="fgrp"><label>Total ৳</label><input id="qi_tot" type="number" placeholder="0"></div>
+    </div>`;
+    a.innerHTML=`<button class="btn btn-p" onclick="qInc()"><span class="bn">আয় যোগ করুন</span><span class="en">Add Income</span></button>`;
+  }else{
+    t.textContent='⚡ Add Due / বাকি যোগ';
+    b.innerHTML=`<div class="fg" style="padding:0;grid-template-columns:1fr 1fr">
+      <div class="fgrp"><label>Name</label><input id="qd_n" placeholder="..."></div>
+      <div class="fgrp"><label>Type</label><select id="qd_t"><option value="worker">Worker</option><option value="seller">Seller</option><option value="buyer">Buyer</option></select></div>
+      <div class="fgrp"><label>Amount ৳</label><input id="qd_a" type="number" placeholder="0"></div>
+      <div class="fgrp"><label>Reason</label><input id="qd_d" placeholder="..."></div>
+    </div>`;
+    a.innerHTML=`<button class="btn btn-p" onclick="qDue()"><span class="bn">বাকি যোগ করুন</span><span class="en">Add Due</span></button>`;
+  }
+}
+function closeQM(){document.getElementById('qModal').style.display='none';}
+function qExp(){const amt=parseFloat(document.getElementById('qe_amt')?.value)||0;if(!amt){showToast('Enter amount',false);return;}DB.expenses.push({id:nid('E','e'),date:tod(),land:document.getElementById('qe_l').value,crop:document.getElementById('qe_c').value,cat:document.getElementById('qe_cat').value,amount:amt,desc:document.getElementById('qe_desc').value});save();closeQM();showToast('Expense added ✅');renderDashboard();}
+function qInc(){const tot=parseFloat(document.getElementById('qi_tot')?.value)||0;if(!tot){showToast('Enter amount',false);return;}DB.incomes.push({id:nid('I','i'),date:tod(),land:document.getElementById('qi_l').value,crop:document.getElementById('qi_c').value,product:document.getElementById('qi_pr').value||'',qty:'',price:0,total:tot});save();closeQM();showToast('Income added ✅');renderDashboard();}
+function qDue(){const n=document.getElementById('qd_n')?.value.trim(),a=parseFloat(document.getElementById('qd_a')?.value)||0;if(!n||!a){showToast('Enter name & amount',false);return;}DB.dues.push({id:nid('D','d'),name:n,type:document.getElementById('qd_t').value,date:tod(),amount:a,desc:document.getElementById('qd_d').value||'',paid:0,payments:[]});save();closeQM();showToast('Due added ✅');renderDashboard();}
+
+// ══════════ CONFIRMATION MODAL ══════════
+let _cfmResolve = null;
+function showConfirm(opts) {
+  // opts: { icon, title, body, okText, showCancel }
+  return new Promise(resolve => {
+    _cfmResolve = resolve;
+    document.getElementById('cfm-icon').textContent  = opts.icon  || '✅';
+    document.getElementById('cfm-title').textContent = opts.title || 'সেভ হয়েছে!';
+    document.getElementById('cfm-body').innerHTML    = opts.body  || '';
+    const cancelBtn = document.getElementById('cfm-cancel');
+    cancelBtn.style.display = opts.showCancel ? 'inline-flex' : 'none';
+    document.getElementById('confirmModal').style.display = 'flex';
+  });
+}
+function closeConfirm(result) {
+  document.getElementById('confirmModal').style.display = 'none';
+  if (_cfmResolve) { _cfmResolve(result); _cfmResolve = null; }
+}
+// Shortcut: simple success notice (no cancel)
+function cfmSuccess(icon, title, details) {
+  showConfirm({ icon, title, body: details });
+}
+
+// ══════════ BACKUP / EMAIL / PDF ══════════
+function getBackupJSON() {
+  return JSON.stringify({DB, CTR, at: new Date().toISOString(), app:'কৃষি হিসাব v3.2'}, null, 2);
+}
+function exportBackup(){
+  const blob = new Blob([getBackupJSON()], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `krishi_backup_${tod()}.json`;
+  a.click();
+  cfmSuccess('⬇️','ব্যাকআপ সেভ হয়েছে / Backup Saved',
+    `<b>krishi_backup_${tod()}.json</b><br><span class="bn">ফাইলটি Downloads ফোল্ডারে গেছে</span><span class="en">File saved to Downloads folder</span>`);
+}
+function emailBackup(){
+  const data = getBackupJSON();
+  const tE = DB.expenses.reduce((a,e)=>a+e.amount,0);
+  const tI = DB.incomes.reduce((a,i)=>a+i.total,0);
+  const p  = tI - tE;
+  const subject = encodeURIComponent(`কৃষি হিসাব ব্যাকআপ — ${tod()}`);
+  const body = encodeURIComponent(
+`কৃষি হিসাব — Masud & Mosiar
+তারিখ: ${new Date().toLocaleDateString('bn-BD')}
+
+সারসংক্ষেপ:
+মোট খরচ: ৳${tE.toLocaleString()}
+মোট আয়:  ৳${tI.toLocaleString()}
+নিট লাভ/ক্ষতি: ৳${p.toLocaleString()}
+
+জমি: ${DB.lands.length}টি | ফসল: ${DB.crops.length}টি | খরচ এন্ট্রি: ${DB.expenses.length}টি | আয় এন্ট্রি: ${DB.incomes.length}টি
+
+--- ব্যাকআপ ডেটা ---
+${data.substring(0, 3000)}
+[... সম্পূর্ণ ব্যাকআপের জন্য JSON ফাইল ডাউনলোড করুন]
+
+Web App Developer: Masud | 01722079625`);
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  setTimeout(()=>{
+    cfmSuccess('📧','ইমেইল অ্যাপ খুলছে / Opening Email',
+      `<span class="bn">ইমেইল অ্যাপে সারসংক্ষেপ পাঠানো হচ্ছে।<br>সম্পূর্ণ JSON ব্যাকআপের জন্য ⬇️ ব্যাকআপ বাটন ব্যবহার করুন।</span>
+       <span class="en">Summary being sent via email.<br>For full JSON backup use ⬇️ Backup button.</span>`);
+  }, 500);
+}
+function importBackup(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.DB){cfmSuccess('❌','ভুল ফাইল / Wrong File','Valid backup JSON file required.');return;}
+      Object.assign(DB,d.DB);if(d.CTR)Object.assign(CTR,d.CTR);save();
+      renderDashboard();
+      cfmSuccess('⬆️','রিস্টোর সম্পন্ন / Restore Complete',
+        `<span class="bn">সব ডেটা পুনরুদ্ধার হয়েছে ✅</span><span class="en">All data restored successfully ✅</span>`);
+    }catch(err){cfmSuccess('❌','ত্রুটি / Error','File read error. Please try again.');}
+  };
+  r.readAsText(f);e.target.value='';
+}
+function printPDF(){
+  const tE=DB.expenses.reduce((a,e)=>a+e.amount,0),tI=DB.incomes.reduce((a,i)=>a+i.total,0),p=tI-tE;
+  const tD=DB.dues.reduce((a,d)=>a+(d.amount-d.paid),0);
+  const g={};DB.expenses.forEach(e=>{const k=e.land+'|'+e.crop;g[k]=g[k]||{land:e.land,crop:e.crop,exp:0,inc:0};g[k].exp+=e.amount;});DB.incomes.forEach(i=>{const k=i.land+'|'+i.crop;g[k]=g[k]||{land:i.land,crop:i.crop,exp:0,inc:0};g[k].inc+=i.total;});
+  const gr=Object.values(g).map(r=>`<tr><td>${getLN(r.land)}</td><td>${getCN(r.crop)}</td><td>৳${r.exp.toLocaleString()}</td><td>৳${r.inc.toLocaleString()}</td><td style="color:${r.inc-r.exp>=0?'green':'red'};font-weight:700">${r.inc-r.exp>=0?'+':''}৳${(r.inc-r.exp).toLocaleString()}</td></tr>`).join('');
+  const dr=DB.dues.filter(d=>d.amount-d.paid>0).map(d=>`<tr><td>${d.name}</td><td>৳${d.amount.toLocaleString()}</td><td>৳${d.paid.toLocaleString()}</td><td style="color:red">৳${(d.amount-d.paid).toLocaleString()}</td></tr>`).join('');
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet"><style>body{font-family:'Hind Siliguri',sans-serif;margin:0;padding:22px;color:#1a1a2e;font-size:13px}h1{font-size:1.25rem;color:#1a3a2a;border-bottom:3px solid #52b788;padding-bottom:7px}p{color:#4a5568;font-size:0.78rem;margin:4px 0 16px}.sr{display:flex;gap:12px;margin-bottom:16px}.sb{flex:1;border:1px solid #e2ece6;border-radius:7px;padding:10px;text-align:center}.sb label{font-size:0.67rem;color:#4a5568;display:block}.sb .v{font-size:1rem;font-weight:700}h3{font-size:0.92rem;color:#1a3a2a;margin:14px 0 5px;border-left:4px solid #52b788;padding-left:7px}table{width:100%;border-collapse:collapse;margin-bottom:12px}th{background:#1a3a2a;color:white;padding:6px 9px;text-align:left;font-size:0.71rem}td{padding:5px 9px;border-bottom:1px solid #f0f5f2;font-size:0.79rem}tr:nth-child(even)td{background:#f7faf8}.ft{text-align:center;color:#4a5568;font-size:0.68rem;margin-top:14px;border-top:1px solid #e2ece6;padding-top:8px}@media print{button{display:none}}</style></head><body>
+  <h1>🌾 কৃষি হিসাব — Masud & Mosiar</h1>
+  <p>${new Date().toLocaleDateString('bn-BD',{year:'numeric',month:'long',day:'numeric'})} | Masud: 40%, Mosiar: 60%</p>
+  <div class="sr">
+    <div class="sb"><label>মোট খরচ</label><div class="v" style="color:#e63946">৳${tE.toLocaleString()}</div></div>
+    <div class="sb"><label>মোট আয়</label><div class="v" style="color:#2d6a4f">৳${tI.toLocaleString()}</div></div>
+    <div class="sb"><label>নিট লাভ/ক্ষতি</label><div class="v" style="color:${p>=0?'#2d6a4f':'#e63946'}">৳${p.toLocaleString()}</div></div>
+    <div class="sb"><label>বকেয়া</label><div class="v" style="color:#e63946">৳${tD.toLocaleString()}</div></div>
+    <div class="sb"><label>Masud (40%)</label><div class="v">৳${(p*0.4).toLocaleString()}</div></div>
+    <div class="sb"><label>Mosiar (60%)</label><div class="v">৳${(p*0.6).toLocaleString()}</div></div>
+  </div>
+  <h3>ফসল-ভিত্তিক লাভ-ক্ষতি</h3>
+  <table><thead><tr><th>জমি</th><th>ফসল</th><th>খরচ</th><th>আয়</th><th>লাভ/ক্ষতি</th></tr></thead><tbody>${gr||'<tr><td colspan="5" style="text-align:center">No data</td></tr>'}</tbody></table>
+  ${dr?`<h3>বকেয়া তালিকা</h3><table><thead><tr><th>নাম</th><th>মোট বাকি</th><th>শোধ</th><th>বাকি</th></tr></thead><tbody>${dr}</tbody></table>`:''}
+  <div class="ft">কৃষি হিসাব v3.1 | Masud & Mosiar</div>
+  <br><button onclick="window.print()" style="padding:7px 16px;background:#1a3a2a;color:white;border:none;border-radius:6px;font-family:'Hind Siliguri';font-size:0.86rem;cursor:pointer">🖨️ Print / PDF</button>
+  </body></html>`);w.document.close();
+}
+
+
+// ══════════ NOTES ══════════
+const noteTypeL={general:'সাধারণ',reminder:'রিমাইন্ডার',plan:'পরিকল্পনা',other:'অন্যান্য'};
+const noteColors={general:'#e8f5e9',reminder:'#fff3e0',plan:'#e3f2fd',other:'#f3e5f5'};
+const noteBorders={general:'#52b788',reminder:'#f4a261',plan:'#60a5fa',other:'#a78bfa'};
+
+function addNote(){
+  const title=document.getElementById('nt_title').value.trim();
+  const body=document.getElementById('nt_body').value.trim();
+  if(!title&&!body){showToast('Title or content required',false);return;}
+  DB.notes.push({id:nid('NT','nt'),title,body,
+    date:document.getElementById('nt_date').value||tod(),
+    type:document.getElementById('nt_type').value});
+  save();renderNotes();showToast('Note saved ✅');
+  ['nt_title','nt_body'].forEach(id=>document.getElementById(id).value='');
+}
+function delNote(id){DB.notes=DB.notes.filter(x=>x.id!==id);save();renderNotes();}
+function renderNotes(){
+  const grid=document.getElementById('notesGrid');
+  if(!DB.notes.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">📝</div><span class="bn">কোনো নোট নেই</span><span class="en">No notes yet</span></div>';return;}
+  grid.innerHTML=DB.notes.slice().reverse().map(n=>`
+    <div style="background:${noteColors[n.type]||noteColors.general};border:1.5px solid ${noteBorders[n.type]||noteBorders.general};border-radius:10px;padding:13px;position:relative;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <strong style="font-size:0.88rem;color:var(--td);flex:1">${n.title||'—'}</strong>
+        <button onclick="delNote('${n.id}')" style="background:none;border:none;cursor:pointer;color:#aaa;font-size:1rem;margin-left:6px;padding:0;">✕</button>
+      </div>
+      <p style="font-size:0.81rem;color:var(--tm);margin-bottom:8px;line-height:1.5;white-space:pre-wrap">${n.body||''}</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.68rem;color:var(--tm)">${fmtD(n.date)}</span>
+        <span style="font-size:0.68rem;background:${noteBorders[n.type]||noteBorders.general};color:white;padding:1px 7px;border-radius:10px">${noteTypeL[n.type]||n.type}</span>
+      </div>
+    </div>`).join('');
+}
+
+function switchNoteTab(tab){
+  ['note','capital'].forEach(t=>{
+    document.getElementById('note-tab-'+t).style.display=t===tab?'block':'none';
+  });
+  document.getElementById('tab-note').classList.toggle('qb-i',tab==='note');
+  document.getElementById('tab-capital').style.opacity=tab==='capital'?'1':'0.6';
+  if(tab==='capital'){renderCapital();}
+  if(!document.getElementById('nt_date').value)document.getElementById('nt_date').value=tod();
+  if(!document.getElementById('cap_date').value)document.getElementById('cap_date').value=tod();
+}
+
+// ══════════ CAPITAL ══════════
+function addCapital(){
+  const amount=parseFloat(document.getElementById('cap_amount').value)||0;
+  if(!amount){showToast('Enter amount',false);return;}
+  const partner=document.getElementById('cap_partner').value;
+  const type=document.getElementById('cap_type').value;
+  const desc=document.getElementById('cap_desc').value.trim();
+  const date=document.getElementById('cap_date').value||tod();
+  if(partner==='both'){
+    DB.capitals.push({id:nid('CP','cp'),date,partner:'masud',type,amount:amount*0.4,desc,note:'(40% of '+amount+')'});
+    DB.capitals.push({id:nid('CP','cp'),date,partner:'mosiar',type,amount:amount*0.6,desc,note:'(60% of '+amount+')'});
+  } else {
+    DB.capitals.push({id:nid('CP','cp'),date,partner,type,amount,desc,note:''});
+  }
+  save();renderCapital();showToast('Capital entry added ✅');
+  document.getElementById('cap_amount').value='';document.getElementById('cap_desc').value='';
+}
+function delCapital(id){DB.capitals=DB.capitals.filter(x=>x.id!==id);save();renderCapital();}
+function renderCapital(){
+  // Summary
+  const mDep=DB.capitals.filter(x=>x.partner==='masud'&&x.type==='deposit').reduce((a,x)=>a+x.amount,0);
+  const mWit=DB.capitals.filter(x=>x.partner==='masud'&&x.type==='withdraw').reduce((a,x)=>a+x.amount,0);
+  const moDep=DB.capitals.filter(x=>x.partner==='mosiar'&&x.type==='deposit').reduce((a,x)=>a+x.amount,0);
+  const moWit=DB.capitals.filter(x=>x.partner==='mosiar'&&x.type==='withdraw').reduce((a,x)=>a+x.amount,0);
+  const tDep=mDep+moDep,tWit=mWit+moWit,bal=tDep-tWit;
+  const mBal=mDep-mWit,moBal=moDep-moWit;
+  document.getElementById('cap-dep').textContent=fmt(tDep);
+  document.getElementById('cap-wit').textContent=fmt(tWit);
+  const cb=document.getElementById('cap-bal');cb.textContent=fmt(bal);cb.style.color=bal>=0?'var(--accentT)':'#ffb3b3';
+  document.getElementById('cap-m-dep').textContent=fmt(mDep);
+  document.getElementById('cap-m-wit').textContent=fmt(mWit);
+  const mb=document.getElementById('cap-m-bal');mb.textContent=fmt(mBal);mb.className=mBal>=0?'pp':'pn';
+  document.getElementById('cap-mo-dep').textContent=fmt(moDep);
+  document.getElementById('cap-mo-wit').textContent=fmt(moWit);
+  const mob=document.getElementById('cap-mo-bal');mob.textContent=fmt(moBal);mob.className=moBal>=0?'pp':'pn';
+  // Table
+  const tb=document.getElementById('capitalTB');
+  const pL={masud:'Masud',mosiar:'Mosiar'};
+  tb.innerHTML=DB.capitals.length?DB.capitals.slice().reverse().map(c=>`<tr>
+    <td>${fmtD(c.date)}</td>
+    <td><span class="badge ${c.partner==='masud'?'bg':'bb'}">${pL[c.partner]||c.partner}</span></td>
+    <td><span class="badge ${c.type==='deposit'?'bg':'br'}">${c.type==='deposit'?'জমা/Deposit':'উত্তোলন/Withdraw'}</span></td>
+    <td><strong class="${c.type==='deposit'?'pp':'pn'}">${fmt(c.amount)}</strong></td>
+    <td>${c.desc||'—'} <small style="color:var(--tm)">${c.note||''}</small></td>
+    <td><button class="btn btn-d btn-sm" onclick="delCapital('${c.id}')">🗑️</button></td>
+  </tr>`).join(''):'<tr><td colspan="6" class="empty"><div class="ei">💰</div>No entries</td></tr>';
+}
+
+// ══════════ PWA ══════════
+let dP=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;setTimeout(()=>document.getElementById('pwa-bn').classList.add('show'),2000);});
+document.getElementById('pwaBtn').addEventListener('click',async()=>{if(!dP)return;dP.prompt();const{outcome}=await dP.userChoice;if(outcome==='accepted')showToast('App installing ✅');dP=null;document.getElementById('pwa-bn').classList.remove('show');});
+
+// ══════════ SAMPLE DATA ══════════
+function initSampleData(){
+  if(DB.lands.length)return;
+  DB.lands.push({id:'L001',name:'পুরাতন',loc:'হাজারী',size:5,owner:'Lease',rent:60000},{id:'L002',name:'নতুন',loc:'হাজারী',size:4,owner:'Lease',rent:100000});
+  DB.crops.push({id:'C001',name:'মরিচ',season:'Summer'},{id:'C002',name:'আলু',season:'Winter'},{id:'C003',name:'ভুট্টা',season:'Winter'},{id:'C004',name:'শসা',season:'Winter'},{id:'C005',name:'পটোল',season:'Summer'});
+  CTR={l:3,c:6,pl:1,e:1,i:1,d:1,lb:1,st:1,nt:1,cp:1};
+  save();renderDashboard();
+}
+</script>
+</body>
+</html>
